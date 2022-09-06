@@ -160,3 +160,6 @@ cython_debug/
 #.idea/
 
 yolov5/*
+wandb/*
+kd/*
+trail22kd/*
