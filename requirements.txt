@@ -5,3 +5,4 @@ ffmpeg-python==0.2.0
 sphinx==4.4.0
 sphinx_rtd_theme==1.0.0
 opencv-python==4.5.5.64
+wandb==0.12.11
