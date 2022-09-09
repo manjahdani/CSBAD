@@ -1,9 +1,10 @@
 import torch
 import glob
-from utils import *
+from _utils import *
 import re
 import argparse
 import numpy as np
+from tqdm import tqdm
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--p', type=str, required=True, help='Path to the parent dir')
@@ -28,13 +29,12 @@ img_dir = f'{parent_dir}/images'
 lbl_dir = f'{parent_dir}/labels'
 
 imgs = sorted(glob.glob(f'{img_dir}/*.{args.e}'))
+imgs = [img.replace('\\', '/') for img in imgs]
 # Inference
-for i in range(len(imgs)):
+for i in tqdm(range(len(imgs))):
     img_name = re.search(f'{img_dir}/(.+?).{args.e}', imgs[i]).group(1)
     results = model(imgs[i], size=args.r)  # imgs[i],size=1200
     to_show_rgb = results.render()[0]
     H, W, C = to_show_rgb.shape
     to_save = df_to_txt(results.pandas().xyxy[0], H, W, amalgamize_truck=args.t)
     np.savetxt(f'{lbl_dir}/{img_name}.txt', to_save.values, fmt='%d %f %f %f %f')  #
-
-print('Training frames annotated !')
