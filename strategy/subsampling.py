@@ -1,7 +1,7 @@
 import os
 import random
 from utils import *
-
+import numpy as np
 
 def strategy_n_first(image_folder_path: str, n: int = 300) -> list:
     """
@@ -58,6 +58,6 @@ def strategy_fixed_interval(image_folder_path: str, n: int = 1) -> list:
         raise SamplingException(f'Image bank contains {len(path_list)} frames, but {n} frames where required for the '
                                 f' fixed interval strategy !')
     path_list.sort()   
-    interval = len(path_list)//n
-    output_list = path_list[::interval]
+    indices = np.linspace(0,len(path_list)-1,n,dtype="int")
+    output_list=[path_list[s] for s in indices]
     return output_list
