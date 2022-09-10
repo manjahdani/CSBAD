@@ -14,7 +14,6 @@ def copy_subsample(index,in_folder,out_folder):
     Create a new directory that copies all the images and the labels following the index in a new folder 
     """
     files = glob.glob(f'{out_folder}/*/*')
-    print(f'{out_folder}/train/*/*')
     if(len(files)>0):
         warning("Train folder was flushed. All files were removed")
         for f in files:
@@ -33,3 +32,12 @@ def copy_subsample(index,in_folder,out_folder):
         assert(img_with_label in labels),'Source folder does not contain a file - ' + img_with_label
         shutil.copy(os.path.join(in_folder,"images",img_with_extension),os.path.join(out_folder,"images",img_with_extension))
         shutil.copy(os.path.join(in_folder,"labels",img_with_label),os.path.join(out_folder,"labels",img_with_label))
+
+
+
+def create_log_file(folder_path,name,frames_list):
+    output_folder = os.path.dirname(folder_path) #EXAMPLE IF FOLDER PATH 'E:/dataset/S05C016', it gives the "E:/dataset"
+    video_name = os.path.basename(folder_path)  #EXAMPLE IF FOLDER PATH 'E:/dataset/S05C016', it gives the "S05C016
+    with open(os.path.join(output_folder, video_name + '-' + name + ".txt"), "w") as log:
+        for f in frames_list:
+            log.write(video_name + '/bank/' + f + ".png\n")

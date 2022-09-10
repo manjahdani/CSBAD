@@ -22,7 +22,7 @@ def strategy_n_first(image_folder_path: str, n: int = 300) -> list:
     return output_list
 
 
-def strategy_random(image_folder_path: str, n: int = 300, seed: int = 50) -> list:
+def strategy_random(image_folder_path: str, n: int = 300, seed: int = 42) -> list:
     """
     :param image_folder_path: path to the bank image folder
     :param n: number of frames to select
@@ -60,5 +60,4 @@ def strategy_fixed_interval(image_folder_path: str, n: int = 1) -> list:
     path_list.sort()   
     interval = len(path_list)//n
     output_list = path_list[::interval]
-    
     return output_list
