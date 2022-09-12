@@ -4,7 +4,7 @@ import glob
 import shutil
 import numpy as np
 import cv2
-from typing import Tuple
+from typing import List, Tuple
 from logging import warning
 
 class SamplingException(Exception):
@@ -176,3 +176,9 @@ def optical_flow_compare(frame1: np.array, frame2: np.array, mask: np.array,
     
     # HSV TO RGB
     return cv2.cvtColor(mask, cv2.COLOR_HSV2BGR)
+
+
+def get_interval_indices(samples: list, sub_samples_length: int) -> List[int]:
+    step = len(samples) // sub_samples_length
+    indices = np.arange(0, sub_samples_length) * step
+    return indices

@@ -17,15 +17,18 @@ if __name__ == "__main__":
                     help='The seed for random strategy')
     ap.add_argument('--difference_ratio', type=float, required=False, default=4,
                     help='Optical flow difference ratio (Movement ratio)')
+    ap.add_argument('--movement_percent', type=int, required=False, default=80,
+                    help='Percentage of movement frames vs Other frames')
 
     args = ap.parse_args()
 
-    assert args.strat_name in ['n_first', 'random', 'fixed_interval', 'flow_diff']
+    assert args.strat_name in ['n_first', 'random', 'fixed_interval', 'flow_diff', 'flow_interval_mix']
 
     bank_folder = os.path.join(args.folder_path, 'bank')
     bank_imgs_folder = os.path.join(bank_folder, 'images')
     train_folder = os.path.join(args.folder_path, 'train')
     difference_ratio = args.difference_ratio
+    movement_percent = args.movement_percent
 
     subsample_names = []
     if args.strat_name == 'n_first':
@@ -36,6 +39,8 @@ if __name__ == "__main__":
         subsample_names = strategy_fixed_interval(bank_imgs_folder, args.n_frames)
     elif args.strat_name == 'flow_diff':
         subsample_names = strategy_dense_optical_difference(bank_imgs_folder, args.n_frames, difference_ratio = difference_ratio)
+    elif args.strat_name == 'flow_interval_mix':
+        subsample_names = strategy_flow_interval_mix(bank_imgs_folder, args.n_frames, difference_ratio = difference_ratio, movement_percent = movement_percent)
     
     name_file = ''
     for a in vars(args):
