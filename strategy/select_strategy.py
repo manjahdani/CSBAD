@@ -17,8 +17,8 @@ if __name__ == "__main__":
                     help='The seed for random strategy')
     ap.add_argument('--difference_ratio', type=float, required=False, default=4,
                     help='Optical flow difference ratio (Movement ratio)')
-    ap.add_argument('--movement_percent', type=int, required=False, default=80,
-                    help='Percentage of movement frames vs Other frames')
+    ap.add_argument('--movement_percent', type=int, required=False, default=90,
+                    help='Percentage of movement frames vs other frames')
 
     args = ap.parse_args()
 
@@ -38,13 +38,16 @@ if __name__ == "__main__":
     elif args.strat_name == 'fixed_interval':
         subsample_names = strategy_fixed_interval(bank_imgs_folder, args.n_frames)
     elif args.strat_name == 'flow_diff':
-        subsample_names = strategy_dense_optical_difference(bank_imgs_folder, args.n_frames, difference_ratio = difference_ratio)
+        subsample_names = strategy_dense_optical_difference(bank_imgs_folder, args.n_frames, 
+                                                            difference_ratio = difference_ratio)
     elif args.strat_name == 'flow_interval_mix':
-        subsample_names = strategy_flow_interval_mix(bank_imgs_folder, args.n_frames, difference_ratio = difference_ratio, movement_percent = movement_percent)
+        subsample_names = strategy_flow_interval_mix(bank_imgs_folder, args.n_frames, 
+                                                    difference_ratio = difference_ratio, movement_percent = movement_percent)
     
     name_file = ''
     for a in vars(args):
-        if(a!='folder_path'):
+        if(a != 'folder_path'):
             name_file = name_file + a + '-' + str(vars(args)[a]) + '-'
+
     create_log_file(str(args.folder_path), name_file, subsample_names)
     copy_subsample(subsample_names, bank_folder, train_folder)

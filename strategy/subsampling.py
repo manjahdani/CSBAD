@@ -127,7 +127,7 @@ def strategy_dense_optical_difference(image_folder_path: str, n: int = DEFAULT_S
 
 
 def strategy_flow_interval_mix(image_folder_path: str, n: int = DEFAULT_SUB_SAMPLE,
-            movement_percent: int = 50, difference_ratio: float = 4.) -> list:
+            movement_percent: int = 90, difference_ratio: float = 4.) -> list:
     """
     :param image_folder_path: path to the bank image folder
     :param n: number of frames to select
