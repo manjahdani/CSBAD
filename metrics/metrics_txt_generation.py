@@ -62,8 +62,8 @@ def main():
             indexList = [idxList]
             metricsChoice = ['Entropy']
             miScore,psnrScore = evaluationInterFrame(imageFolder,indexList,metricsChoice,(H,W))
-            writeCSV(LogFolder_list[i].split('.')[0]+'mutual_information.txt',cameraFolder, miScore)
-            writeCSV(LogFolder_list[i].split('.')[0]+'psnr.txt',cameraFolder, psnrScore)
+            writeCSV(LogFolder_list[i].split('.')[0]+'_mutual_information.txt',cameraFolder, miScore)
+            writeCSV(LogFolder_list[i].split('.')[0]+'_psnr.txt',cameraFolder, psnrScore)
     
     endTime= time.time()
     print("Execution time: ", endTime - startTime)
