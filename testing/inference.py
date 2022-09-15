@@ -25,14 +25,14 @@ def main(weights_path, csv_path, append_mode, dataset_path, coco):
                     camera_path = dataset_path + '/' + camera
                     print(f'[{i + 1}/{len(weights_list)}] [{j + 1}/{len(cameras)}] Evaluating {weight} on {camera}')
                     map05, map0595 = eval_test(weight_path, camera_path, native_res=False)
-                    writer.writerow([weight, camera, 'True', map05, map0595])
+                    writer.writerow([weight.split('.')[0], camera, 'True', map05, map0595])
             else:
                 camera = weight[9:16]
                 camera_path = dataset_path + '/' + camera
 
                 print(f'[{i + 1}/{len(weights_list)}] Evaluating {weight}')
                 map05, map0595 = eval_test(weight_path, camera_path, native_res=False)
-                writer.writerow([weight, camera, 'False', map05, map0595])
+                writer.writerow([weight.split('.')[1], camera, 'False', map05, map0595])
 
 
 def eval_test(weight_path, camera_path, native_res=False):
