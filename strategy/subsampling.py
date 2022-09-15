@@ -4,6 +4,7 @@ import cv2
 import numpy as np
 from tqdm import tqdm
 from utils import *
+import pandas as pd
 
 # Ignoring numpy warnings
 import warnings
@@ -18,7 +19,7 @@ def strategy_n_first(image_folder_path: str, n: int = DEFAULT_SUB_SAMPLE) -> lis
     :return output_list: a list containing the selected images path
     """
     path_list = list_files_without_extensions(image_folder_path)
-    if(n<=0):
+    if n <= 0:
         raise SamplingException(f'You must select a strictly positive number of frames to select')
     if n > len(path_list):
         raise SamplingException(f'Image bank contains {len(path_list)} frames, but {n} frames where required for the '
@@ -26,6 +27,36 @@ def strategy_n_first(image_folder_path: str, n: int = DEFAULT_SUB_SAMPLE) -> lis
     path_list.sort()
     output_list = path_list[:n]
     return output_list
+
+def strategy_best_entropy(image_folder_path: str,entropy_file :str, n: int = DEFAULT_SUB_SAMPLE) -> list:
+    """
+    :param image_folder_path: path to the bank image folder
+    :param n: number of frames to select
+    :param entropy_file: path to the entropy file
+    :return output_list: a list containing the selected images path
+    """
+    path_list = list_files_without_extensions(image_folder_path)
+    if n <= 0:
+        raise SamplingException(f'You must select a strictly positive number of frames to select')
+    if n > len(path_list):
+        raise SamplingException(f'Image bank contains {len(path_list)} frames, but {n} frames where required for the '
+                                f'N first strategy !')
+    path_list.sort()
+    data = pd.read_csv(entropy_file, header=None)[0].tolist()  # .values
+    idx_list = [i for i in range(len(data))]
+    zipped = zip(data, idx_list)
+    data_sorted = sorted(zipped, reverse=True)[0:n]
+    list_sorted = list(map(list, zip(*data_sorted)))
+    idx_frame_sorted = list_sorted[1]
+    idx_frame_sorted.sort()
+    output_list = []
+    for frame_idx in idx_frame_sorted:
+        path_construction = f'frame_{frame_idx:04d}'
+        output_list.append(path_construction)
+
+
+    return output_list
+
 
 
 def strategy_random(image_folder_path: str, n: int = DEFAULT_SUB_SAMPLE, seed: int = 42) -> list:
@@ -36,7 +67,7 @@ def strategy_random(image_folder_path: str, n: int = DEFAULT_SUB_SAMPLE, seed: i
     :return output_list: a list containing the selected images path
     """
     path_list = list_files_without_extensions(image_folder_path)
-    if(n<=0):
+    if n <= 0:
         raise SamplingException(f'You must select a strictly positive number of frames to select')
     if n > len(path_list):
         raise SamplingException(f'Image bank contains {len(path_list)} frames, but {n} frames where required for the '
@@ -54,8 +85,7 @@ def strategy_fixed_interval(image_folder_path: str, n: int = 1) -> list:
     :param n: number of frames to select
     :return output_list: a list containing the selected images path
     """
-    
-    if(n<=0):
+    if n <= 0:
         raise SamplingException(f'You must select a strictly positive number of frames to select')
     
     path_list = [os.path.splitext(filename)[0] for filename in os.listdir(image_folder_path)]
@@ -80,8 +110,7 @@ def strategy_dense_optical_difference(image_folder_path: str, n: int = DEFAULT_S
     :param fixer_precision: for fixing outliers (like the entire camera moving from wind). best choices are less or equal to 0.01
     :return output_list: a list containing the selected images path (check for list len if fill_missing is set to False)
     """
-
-    if(n<=0):
+    if n <= 0:
         raise SamplingException(f'You must select a strictly positive number of frames to select')
 
     path_list = list_files_without_extensions(image_folder_path)

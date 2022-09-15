@@ -19,10 +19,12 @@ if __name__ == "__main__":
                     help='Optical flow difference ratio (Movement ratio)')
     ap.add_argument('--movement_percent', type=int, required=False, default=90,
                     help='Percentage of movement frames vs other frames')
+    ap.add_argument('--entropy_file', type=str, required=False,
+                    help='Path to the entropy file')
 
     args = ap.parse_args()
 
-    assert args.strat_name in ['n_first', 'random', 'fixed_interval', 'flow_diff', 'flow_interval_mix']
+    assert args.strat_name in ['n_first', 'random', 'fixed_interval', 'flow_diff', 'flow_interval_mix', 'entropy']
 
     bank_folder = os.path.join(args.folder_path, 'bank')
     bank_imgs_folder = os.path.join(bank_folder, 'images')
@@ -38,15 +40,18 @@ if __name__ == "__main__":
     elif args.strat_name == 'fixed_interval':
         subsample_names = strategy_fixed_interval(bank_imgs_folder, args.n_frames)
     elif args.strat_name == 'flow_diff':
-        subsample_names = strategy_dense_optical_difference(bank_imgs_folder, args.n_frames, 
-                                                            difference_ratio = difference_ratio)
+        subsample_names = strategy_dense_optical_difference(bank_imgs_folder, args.n_frames,
+                                                            difference_ratio=difference_ratio)
+    elif args.strat_name == 'entropy':
+        subsample_names = strategy_best_entropy(bank_imgs_folder, args.entropy_file, args.n_frames)
     elif args.strat_name == 'flow_interval_mix':
-        subsample_names = strategy_flow_interval_mix(bank_imgs_folder, args.n_frames, 
-                                                    difference_ratio = difference_ratio, movement_percent = movement_percent)
-    
+        subsample_names = strategy_flow_interval_mix(bank_imgs_folder, args.n_frames,
+                                                     difference_ratio=difference_ratio,
+                                                     movement_percent=movement_percent)
+
     name_file = ''
     for a in vars(args):
-        if(a != 'folder_path'):
+        if (a != 'folder_path' and a != 'entropy_file'):
             name_file = name_file + a + '-' + str(vars(args)[a]) + '-'
 
     create_log_file(str(args.folder_path), name_file, subsample_names)
