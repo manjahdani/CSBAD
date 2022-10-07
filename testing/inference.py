@@ -7,7 +7,7 @@ sys.path.append(os.path.dirname('yolov5'))
 from yolov5.val import *
 
 
-def main(weights_path, csv_path, append_mode, dataset_path, coco):
+def main(weights_path, csv_path, append_mode, dataset_path, coco, cls):
     mode = 'a' if append_mode else 'w'
     with open(csv_path, mode, newline='') as f:
         writer = csv.writer(f)
@@ -24,18 +24,18 @@ def main(weights_path, csv_path, append_mode, dataset_path, coco):
                 for j, camera in enumerate(cameras):
                     camera_path = dataset_path + '/' + camera
                     print(f'[{i + 1}/{len(weights_list)}] [{j + 1}/{len(cameras)}] Evaluating {weight} on {camera}')
-                    map05, map0595 = eval_test(weight_path, camera_path, native_res=False)
+                    map05, map0595 = eval_test(weight_path, camera_path, native_res=False, coco=True, cls=cls)
                     writer.writerow([weight.split('.')[0], camera, 'True', map05, map0595])
             else:
                 camera = weight[9:16]
                 camera_path = dataset_path + '/' + camera
 
                 print(f'[{i + 1}/{len(weights_list)}] Evaluating {weight}')
-                map05, map0595 = eval_test(weight_path, camera_path, native_res=False)
+                map05, map0595 = eval_test(weight_path, camera_path, native_res=False, cls=cls)
                 writer.writerow([weight.split('.')[1], camera, 'False', map05, map0595])
 
 
-def eval_test(weight_path, camera_path, native_res=False):
+def eval_test(weight_path, camera_path, native_res=False, coco=False, cls=None):
     yml = './testing/test_trail22kd.yaml'
 
     if native_res:
@@ -46,6 +46,9 @@ def eval_test(weight_path, camera_path, native_res=False):
         imgsz = img.shape[1]
     else:
         imgsz = 640
+
+    if coco and cls is None:
+        cls = [2, 5, 7]
 
     # Read the lines from YAML and change the camera path to evaluate
     with open(yml, 'r') as y:
@@ -63,6 +66,7 @@ def eval_test(weight_path, camera_path, native_res=False):
                   conf_thres=0.4,
                   iou_thres=0.7,
                   task='test',
+                  cls=cls,
                   single_cls=True,
                   imgsz=imgsz)
 
@@ -83,6 +87,8 @@ if __name__ == "__main__":
                     help='The path to the dataset folder, it should contain each camera in a separated folder')
     ap.add_argument('-coco', '--coco', action='store_true',
                     help='Whether the weights use COCO classes')
+    ap.add_argument('--classes', nargs='+', type=int,
+                    help='If coco arg is True, filter by class: --classes 0, or --classes 0 2 3')
     args = ap.parse_args()
 
     if not args.append and os.path.exists(args.csv_path):
@@ -91,4 +97,4 @@ if __name__ == "__main__":
         if user_resp != 'y':
             exit()
 
-    main(args.weights_path, args.csv_path, args.append, args.dataset_path, args.coco)
+    main(args.weights_path, args.csv_path, args.append, args.dataset_path, args.coco, args.classes)
