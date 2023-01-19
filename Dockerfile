@@ -11,8 +11,8 @@ ARG WANDB_API_KEY
 
 RUN wandb login $WANDB_API_KEY
 
-WORKDIR /workspace
-
-RUN ln -s /usr/src/app /workspace/yolov5
+RUN mkdir -p /workspace
 
 ADD . /workspace/
+
+WORKDIR /workspace
