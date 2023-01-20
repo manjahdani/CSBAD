@@ -6,7 +6,7 @@
 Once you have cloned this repository, you can install the requirements entering the following command:
 
 ```
-git clone -b v6.2.1 https://github.com/ultralytics/yolov5
+git clone -b v6.2 https://github.com/ultralytics/yolov5
 pip install -r yolov5/requirements.txt
 pip install -r requirements.txt
 pip install torchvision==0.11.3+cu113 -f https://download.pytorch.org/whl/cu113/torch_stable.html
@@ -76,10 +76,12 @@ You can execute the subsampling and training commands through docker :
 #### build 
 
 ```
-docker image build -t fennecinspace/kdtest --build-arg WANDB_API_KEY=YOUR_WANDB_API_KEY .
+docker image build -t fetnecinspace/kdtest --build-arg WANDB_API_KEY=1468bcb73576f41791fa4555a9ddd2b4a782ce38 .
 ```
 
 PS: Do not have the data folder in this repo's directory, it will increase the image size when building.
+
+docker run --rm -v /path/to/data/S05c016:/workspace/data -v /home/dani/data.yaml:/workspace/training/trail22kd.yaml fetnecinspace/kdtest  python /workspace/yolov5/train.py --name S05c016-firstn-100 --project kdtest --entity trail22kd --data  training/trail22kd.yaml --hyp training/hyp.trail22kd.yaml --weights models/yolov5n.pt
 
 #### run
 
