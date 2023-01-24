@@ -5,7 +5,7 @@ import argparse
 
 def simulate_log_files (folder_path, strat_name, n_start, n_max, step):
     
-    assert strat_name in ['n_first', 'fixed_interval'], 'The method ' + strat_name + ' is not supported ' #SUPPORTED METHODS
+    assert strat_name in ['n_first', 'fixed_interval','flow_diff','flow_interval_mix'], 'The method ' + strat_name + ' is not supported ' #SUPPORTED METHODS
     tmp = range(n_max//step)
     n_frame = [n_start + step*interval for interval in tmp]
     bank_folder = os.path.join(folder_path, 'bank')
@@ -17,6 +17,10 @@ def simulate_log_files (folder_path, strat_name, n_start, n_max, step):
             subsample_names = strategy_n_first(bank_imgs_folder, n)
         elif strat_name == 'fixed_interval':
             subsample_names = strategy_fixed_interval(bank_imgs_folder, n)
+        elif args.strat_name == 'flow_diff':
+            subsample_names = strategy_dense_optical_difference(bank_imgs_folder, n)
+        elif args.strat_name == 'flow_interval_mix':
+            subsample_names = strategy_flow_interval_mix(bank_imgs_folder, n)
         name = 'n_frames-'+str(n)+'-strat_name-'+strat_name
         create_log_file(folder_path, name, subsample_names)
 
