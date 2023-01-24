@@ -163,3 +163,5 @@ yolov5/
 wandb/
 kd/
 trail22kd/
+runs/
+yolov8/wandb/
