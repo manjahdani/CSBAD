@@ -12,13 +12,13 @@ warnings.filterwarnings('ignore')
 
 DEFAULT_SUB_SAMPLE = 300
 
-def strategy_n_first(image_folder_path: str, n: int = DEFAULT_SUB_SAMPLE) -> list:
+def strategy_n_first(image_folder_path: str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE) -> list:
     """
     :param image_folder_path: path to the bank image folder
     :param n: number of frames to select
     :return output_list: a list containing the selected images path
     """
-    path_list = list_files_without_extensions(image_folder_path)
+    path_list = list_files_without_extensions(image_folder_path, extension=imgExtension)[0:-val_size]
     if n <= 0:
         raise SamplingException(f'You must select a strictly positive number of frames to select')
     if n > len(path_list):
@@ -28,14 +28,14 @@ def strategy_n_first(image_folder_path: str, n: int = DEFAULT_SUB_SAMPLE) -> lis
     output_list = path_list[:n]
     return output_list
 
-def strategy_best_entropy(image_folder_path: str,entropy_file :str, n: int = DEFAULT_SUB_SAMPLE) -> list:
+def strategy_best_entropy(image_folder_path: str,entropy_file :str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE) -> list:
     """
     :param image_folder_path: path to the bank image folder
     :param n: number of frames to select
     :param entropy_file: path to the entropy file
     :return output_list: a list containing the selected images path
     """
-    path_list = list_files_without_extensions(image_folder_path)
+    path_list = list_files_without_extensions(image_folder_path, extension=imgExtension)[0:-val_size]
     if n <= 0:
         raise SamplingException(f'You must select a strictly positive number of frames to select')
     if n > len(path_list):
@@ -59,14 +59,14 @@ def strategy_best_entropy(image_folder_path: str,entropy_file :str, n: int = DEF
 
 
 
-def strategy_random(image_folder_path: str, n: int = DEFAULT_SUB_SAMPLE, seed: int = 42) -> list:
+def strategy_random(image_folder_path: str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE, seed: int = 42) -> list:
     """
     :param image_folder_path: path to the bank image folder
     :param n: number of frames to select
     :param seed: randomization seed for reproducibility
     :return output_list: a list containing the selected images path
     """
-    path_list = list_files_without_extensions(image_folder_path)
+    path_list = list_files_without_extensions(image_folder_path, extension=imgExtension)[0:-val_size]
     if n <= 0:
         raise SamplingException(f'You must select a strictly positive number of frames to select')
     if n > len(path_list):
@@ -79,7 +79,7 @@ def strategy_random(image_folder_path: str, n: int = DEFAULT_SUB_SAMPLE, seed: i
     return output_list
 
 
-def strategy_fixed_interval(image_folder_path: str, n: int = 1) -> list:
+def strategy_fixed_interval(image_folder_path: str, imgExtension: str, val_size: int, n: int = 1) -> list:
     """
     :param image_folder_path: path to the bank image folder
     :param n: number of frames to select
@@ -88,7 +88,7 @@ def strategy_fixed_interval(image_folder_path: str, n: int = 1) -> list:
     if n <= 0:
         raise SamplingException(f'You must select a strictly positive number of frames to select')
     
-    path_list = [os.path.splitext(filename)[0] for filename in os.listdir(image_folder_path)]
+    path_list = list_files_without_extensions(image_folder_path, extension=imgExtension)[0:-val_size]
     
     if n > len(path_list):
         raise SamplingException(f'Image bank contains {len(path_list)} frames, but {n} frames where required for the '
@@ -100,7 +100,7 @@ def strategy_fixed_interval(image_folder_path: str, n: int = 1) -> list:
     return output_list
 
 
-def strategy_dense_optical_difference(image_folder_path: str, n: int = DEFAULT_SUB_SAMPLE, jump = 2, fill_missing: bool = True,
+def strategy_dense_optical_difference(image_folder_path: str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE, jump = 2, fill_missing: bool = True,
             difference_ratio: float = 4., fixer_precision: float = 0.001) -> list:
     """
     :param image_folder_path: path to the bank image folder
@@ -113,7 +113,7 @@ def strategy_dense_optical_difference(image_folder_path: str, n: int = DEFAULT_S
     if n <= 0:
         raise SamplingException(f'You must select a strictly positive number of frames to select')
 
-    path_list = list_files_without_extensions(image_folder_path)
+    path_list = list_files_without_extensions(image_folder_path, extension=imgExtension)[0:-val_size]
     if n > len(path_list):
         raise SamplingException(f'Image bank contains {len(path_list)} frames, but {n} frames where required for the '
                                 f'random strategy !')
@@ -155,7 +155,7 @@ def strategy_dense_optical_difference(image_folder_path: str, n: int = DEFAULT_S
         return output_list_processed
 
 
-def strategy_flow_interval_mix(image_folder_path: str, n: int = DEFAULT_SUB_SAMPLE,
+def strategy_flow_interval_mix(image_folder_path: str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE,
             movement_percent: int = 90, difference_ratio: float = 4.) -> list:
     """
     :param image_folder_path: path to the bank image folder
@@ -169,7 +169,7 @@ def strategy_flow_interval_mix(image_folder_path: str, n: int = DEFAULT_SUB_SAMP
     if(n<=0):
         raise SamplingException(f'You must select a strictly positive number of frames to select')
 
-    path_list = list_files_without_extensions(image_folder_path)
+    path_list = list_files_without_extensions(image_folder_path, extension=imgExtension)[0:-val_size]
     if n > len(path_list):
         raise SamplingException(f'Image bank contains {len(path_list)} frames, but {n} frames where required for the '
                                 f'random strategy !')
