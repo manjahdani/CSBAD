@@ -1,19 +1,17 @@
-FROM ultralytics/yolov5:v6.2
+FROM ultralytics/ultralytics:latest
 
 LABEL Mohamed Benkedadra <mohamed.benkedadra@umons.ac.be>
 
+ENV PYTHONUNBUFFERED=1
+
 RUN mkdir -p /workspace
 ADD . /workspace/
-WORKDIR /workspace
+WORKDIR /workspace/yolov8
 
 
-RUN pip install -U pip && pip install -r yolov5/requirements.txt
-RUN pip install -U pip && pip install -r requirements.txt
-# RUN pip install torchvision==0.11.3+cu113 -f https://download.pytorch.org/whl/cu113/torch_stable.html
-
-ENV PYTHONUNBUFFERED=1
+RUN pip install -U pip && pip install -r /workspace/yolov8/ultralytics/requirements.txt
+RUN pip install -U pip && pip install -r /workspace/requirements.txt
 
 ARG WANDB_API_KEY
 
 RUN wandb login $WANDB_API_KEY
-
