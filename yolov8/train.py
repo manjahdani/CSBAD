@@ -1,10 +1,9 @@
-import sys
-sys.path.insert(0, './ultralytics')
+import argparse
 
 import os
-import argparse
-import wandb
-from ultralytics.yolo.engine.model import YOLO
+import sys
+sys.path.append(os.path.join(os.path.dirname(sys.path[0]), "yolov8", "ultralytics"))
+from ultralytics import YOLO
 
 
 if __name__ == "__main__":
