@@ -2,7 +2,7 @@ defaults:
   - _self_
   # change for the dataset name you want to use
   # either WALT or AI-city
-  - dataset: AI-city 
+  - dataset: WALT
   # change for the strategy name you want to use
   # either random or n-first
   - strategy: random 
@@ -16,7 +16,7 @@ n_samples: 25           # your strategy number of samples: [25, 50, 75, 100]
 # For WALT dataset
 path_walt: "YOURPATH/TO/WALT-challenge" # your path root folder
 cam_walt: 1                             # camera number
-week_wal: 2                             # week number
+week_walt: 2                             # week number
 
 # For AI-city dataset
 path_ai-city: "YOURPATH/TO/AI-city"     # your path root folder

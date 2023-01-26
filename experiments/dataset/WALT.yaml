@@ -5,4 +5,4 @@ image_path: "${dataset.bank_path}/images"
 label_path: "${dataset.bank_path}/labels_yolov8x6"
 extension: "jpg"
 
-name: "WALT-cam${cam}-week${week}"
+name: "WALT-cam${cam_walt}-week${week_walt}"
