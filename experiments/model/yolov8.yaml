@@ -1,6 +1,6 @@
 weights: "${project_dir}/yolov8/yolov8n.pt"
 name: "${dataset.name}_yolov8xn_${strategy.name}"
-entity: "${username}"
+entity: "trail22kd"
 project: "${dataset.name}"
 epochs: 100
 batch: 8

@@ -27,6 +27,50 @@ pip install -r requirements.txt
 wandb login
 ```
 
+## Dataset structure
+
+### WALT
+
+```
+WALT-challenge
+├── cam{1}
+│   ├── test
+│   │   ├── images
+│   │   └──  labels
+│   ├── week{1}
+│   │   └── bank
+│   │       ├── images
+│   │       └── labels_yolov8x6
+.   .
+│   └── week{i}
+│       └── ...
+.
+└── cam{j}
+    └── ...
+```
+
+### AI-city
+
+```
+AI-city
+├── S01c011
+│   ├── bank
+│   │   ├── images
+│   │   └── labels
+│   ├── test
+│   │   ├── images
+│   │   └── labels
+│   ├── train
+│   │   ├── images
+│   │   └── labels
+│   └── val
+│       ├── images
+│       └── labels
+.
+└── S{i}c{j}
+    └── ...
+```
+
 ## Running code
 
 ### Generation of the pseudo labels (populate bank)
@@ -34,7 +78,7 @@ wandb login
 ```bash
 python annotation/generate_pseudo_labels.py --parent "YOURPATH/WALT-or-AI-city/bank" --extension "jpg-or-png"
 ```
-*remark*: bank folder must contain an images/ folder that contains all the images.
+*remark*: bank folder must contain an images/ folder that contains all the images. If you are on Windows, you can you only use the `"` and **not** the `'`.
 
 ### Conduct an experiment
 
@@ -65,6 +109,8 @@ To make a long story short, hydra is a configuration management tool that retrie
 To modify an experiment you can modify the configuration file `experiments/experiment.yaml`. **At your first use, you will have to modify the paths to the dataset and your wandb username.**
 
 The logs, outputs and stuffs of your runs are automatically outputed in the `output` folder.
+
+*remark*: if you are using Windows, do not forget to adapt your paths by using `/` instead of **not** `\` or `//`.
 
 ---
 # Deprecated

@@ -10,7 +10,6 @@ defaults:
   - train: train        # no changes here
   - model: yolov8       # no changes here
 
-username: "myusername"  # your username on wandb
 n_samples: 25           # your strategy number of samples: [25, 50, 75, 100]
 
 # For WALT dataset

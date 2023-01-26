@@ -74,4 +74,4 @@ def check_config_mismatch(overrides, cfg):
         sys.exit()
 
 
-hydra._internal.config_loader_impl.ConfigLoaderImpl._apply_overrides_to_config = override_config
+# hydra._internal.config_loader_impl.ConfigLoaderImpl._apply_overrides_to_config = override_config
