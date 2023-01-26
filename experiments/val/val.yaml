@@ -1,0 +1,5 @@
+parent_folder: "${dataset.data_path}"
+extension: "${dataset.extension}"
+labels_folder: "${dataset.label_path}"
+val_set_size: 300
+min_n_frame: 500

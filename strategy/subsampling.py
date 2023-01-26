@@ -3,7 +3,7 @@ import random
 import cv2
 import numpy as np
 from tqdm import tqdm
-from utils import *
+from .utils import *
 import pandas as pd
 
 # Ignoring numpy warnings
@@ -12,7 +12,7 @@ warnings.filterwarnings('ignore')
 
 DEFAULT_SUB_SAMPLE = 300
 
-def strategy_n_first(image_folder_path: str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE) -> list:
+def strategy_n_first(image_folder_path: str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE, **kwargs) -> list:
     """
     :param image_folder_path: path to the bank image folder
     :param n: number of frames to select
@@ -28,7 +28,7 @@ def strategy_n_first(image_folder_path: str, imgExtension: str, val_size: int, n
     output_list = path_list[:n]
     return output_list
 
-def strategy_best_entropy(image_folder_path: str,entropy_file :str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE) -> list:
+def strategy_best_entropy(image_folder_path: str,entropy_file :str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE, **kwargs) -> list:
     """
     :param image_folder_path: path to the bank image folder
     :param n: number of frames to select
@@ -59,7 +59,7 @@ def strategy_best_entropy(image_folder_path: str,entropy_file :str, imgExtension
 
 
 
-def strategy_random(image_folder_path: str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE, seed: int = 42) -> list:
+def strategy_random(image_folder_path: str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE, seed: int = 42, **kwargs) -> list:
     """
     :param image_folder_path: path to the bank image folder
     :param n: number of frames to select
@@ -79,7 +79,7 @@ def strategy_random(image_folder_path: str, imgExtension: str, val_size: int, n:
     return output_list
 
 
-def strategy_fixed_interval(image_folder_path: str, imgExtension: str, val_size: int, n: int = 1) -> list:
+def strategy_fixed_interval(image_folder_path: str, imgExtension: str, val_size: int, n: int = 1, **kwargs) -> list:
     """
     :param image_folder_path: path to the bank image folder
     :param n: number of frames to select
@@ -101,7 +101,7 @@ def strategy_fixed_interval(image_folder_path: str, imgExtension: str, val_size:
 
 
 def strategy_dense_optical_difference(image_folder_path: str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE, jump = 2, fill_missing: bool = True,
-            difference_ratio: float = 4., fixer_precision: float = 0.001) -> list:
+            difference_ratio: float = 4., fixer_precision: float = 0.001, **kwargs) -> list:
     """
     :param image_folder_path: path to the bank image folder
     :param n: number of frames to select
@@ -156,7 +156,7 @@ def strategy_dense_optical_difference(image_folder_path: str, imgExtension: str,
 
 
 def strategy_flow_interval_mix(image_folder_path: str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE,
-            movement_percent: int = 90, difference_ratio: float = 4.) -> list:
+            movement_percent: int = 90, difference_ratio: float = 4., **kwargs) -> list:
     """
     :param image_folder_path: path to the bank image folder
     :param n: number of frames to select

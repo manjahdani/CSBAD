@@ -1,0 +1,8 @@
+_target_: strategy.subsampling.strategy_random
+
+image_folder_path: "${dataset.image_path}"
+imgExtension: "${dataset.extension}"
+val_size: ${val.val_set_size}
+n: ${n_samples}
+
+name: "random_${n_samples}"

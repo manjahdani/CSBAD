@@ -1,22 +1,83 @@
 # trail22KD
 
-## Requirements
+## Installation
 
-### Working on Host (No Docker)
-Once you have cloned this repository, you can install the requirements entering the following command:
-
+### Clone the repo
+```bash
+git clone https://github.com/manjahdani/trail22KD.git
+cd trail22KD
 ```
-pip install -r yolov8/ultralytics/requirements.txt
+
+### Create conda env
+```bash
+conda conda create -y --name trail22kd python pip
+conda activate trail22kd
+```
+
+### Install requirements
+```bash
 pip install -r requirements.txt
 ```
 
-### Using Docker :
+### Configure wandb
+- Check if you're in the ["trail22kd" team](https://wandb.ai/trail22kd)
 
-
-Install [Docker](https://docs.docker.com/get-docker/) and [Docker Nvidia GPU Support](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/overview.html)
-
+- Setup wandb to send logs :
+```bash
+wandb login
+```
 
 ## Running code
+
+### Generation of the pseudo labels (populate bank)
+
+```bash
+python annotation/generate_pseudo_labels.py --parent "YOURPATH/WALT-or-AI-city/bank" --extension "jpg-or-png"
+```
+*remark*: bank folder must contain an images/ folder that contains all the images.
+
+### Conduct an experiment
+
+Running an experiment consists in the following steps:
+    
+1. Populate a `val` folder based on the data contained in bank  folder.
+2. Populate a `train` folder based on a `strategy` applied on the data contained in bank folder. The `strategy` ensures that no images are duplicated between the train and the val sets.
+3. Launch a training on a `yolov8n` model based on the previously generated sets. The scripts automatically launches everything to wandb.
+
+
+The following is based on the configuration file of [Hydra](https://hydra.cc/) which is a powerful configuration tool which allow to modify easily the conducted experiments.
+
+You can launch an experiment by executing main:
+
+```bash
+python main.py
+```
+
+If needed, you can add `HYDRA_FULL_ERROR=1` as env variable to see a bit more clearly the Traceback in case of debuging.
+
+```bash
+HYDRA_FULL_ERROR=1 python main.py
+```
+
+#### Modify the configs to change the experiments
+To make a long story short, hydra is a configuration management tool that retrieves the information included in the `*.yaml' files to facilitate the deployment of the application.
+
+To modify an experiment you can modify the configuration file `experiments/experiment.yaml`. **At your first use, you will have to modify the paths to the dataset and your wandb username.**
+
+The logs, outputs and stuffs of your runs are automatically outputed in the `output` folder.
+
+---
+# Deprecated
+
+### Using Docker (deprecated):
+
+Clone the YoloV5 repo :
+
+```
+git clone -b v6.2.1 https://github.com/Gerin-Benoit/yolov5
+```
+
+Install [Docker](https://docs.docker.com/get-docker/) and [Docker Nvidia GPU Support](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/overview.html)
 
 ### Subsampling
 

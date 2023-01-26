@@ -1,0 +1,7 @@
+subsample:
+  in_folder: "${dataset.bank_path}"
+  out_folder: "${dataset.train_path}"
+  imgExtension: "${dataset.extension}"
+  labelsFolder: "${dataset.label_path}"
+
+strategy: "${strategy}"

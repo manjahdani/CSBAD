@@ -1,0 +1,13 @@
+names:
+  1: bicycle
+  2: car
+  3: motorcycle
+  4: airplane
+  5: bus
+  6: train
+  7: truck
+  8: boat
+path: /home/bstandaert/Documents/KDworkshop/AI-city/S05c016
+test: test
+train: train
+val: val

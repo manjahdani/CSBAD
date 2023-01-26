@@ -1,7 +1,9 @@
 import argparse
 import os
-from subsampling import *
-from utils import copy_subsample
+from .subsampling import *
+from .utils import copy_subsample
+from hydra.utils import call
+
 
 if __name__ == "__main__":
 
@@ -60,3 +62,11 @@ if __name__ == "__main__":
 
     create_log_file(str(args.folder_path), name_file, subsample_names)
     copy_subsample(subsample_names, bank_folder, train_folder,imgExtension=args.img_extension,labelsFolder=args.labels_folder)
+
+
+def build_train_folder(config):
+    subsample_names = call(config.strategy)
+    copy_subsample(subsample_names, **config.subsample)
+
+
+

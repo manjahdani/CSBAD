@@ -5,7 +5,7 @@ def df_to_txt(data, H, W, amalgamize_truck=True):  # class x_center y_center wid
     ymax = data['ymax']
     extract = data.loc[:, ['class', 'xmin', 'ymin', 'xmax', 'ymax']]
     if amalgamize_truck:
-        extract.loc[extract['class'] != 2, 'class'] = 2
+        extract['class'] = 2
     extract['xmin'] = ((xmax + xmin) / 2) / W  # x_center
     extract['ymin'] = ((ymax + ymin) / 2) / H  # y_center
     extract['xmax'] = (xmax - xmin) / W  # width

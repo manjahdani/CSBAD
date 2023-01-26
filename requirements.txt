@@ -1,3 +1,5 @@
+-r "yolov8/ultralytics/requirements.txt"
+
 numpy==1.22.3
 pillow==9.0.1
 tqdm>=4.63.0
@@ -7,3 +9,4 @@ sphinx_rtd_theme==1.0.0
 opencv-python==4.5.5.64
 wandb==0.12.11
 tabulate==0.8.9
+hydra-core

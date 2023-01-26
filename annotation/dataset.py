@@ -1,5 +1,5 @@
 import os
-from _utils import *
+from ._utils import *
 import cv2
 
 import sys
@@ -66,7 +66,7 @@ def build_train_val_folders(video_path, output_parent_folder, item_name='frame',
 #New function to build the validation set 
 #The validation set is composed of the 300 last frames of the bank
 #The input is the bank set
-def build_val_folders(parent_folder, extension, labels_folder, val_set_size=300, min_n_frame=500):
+def build_val_folder(parent_folder, extension, labels_folder, val_set_size=300, min_n_frame=500):
     if not os.path.exists(f'{parent_folder}/val'):
         os.makedirs(f'{parent_folder}/val')
     if not os.path.exists(f'{parent_folder}/val/images'):
