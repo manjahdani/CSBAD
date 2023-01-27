@@ -28,6 +28,7 @@ wandb login
 ```
 
 ## Dataset structure
+Your dataset folder should follow the same structure:
 
 ### WALT
 
@@ -104,7 +105,7 @@ HYDRA_FULL_ERROR=1 python main.py
 ```
 
 #### Modify the configs to change the experiments
-To make a long story short, hydra is a configuration management tool that retrieves the information included in the `*.yaml' files to facilitate the deployment of the application.
+To make a long story short, hydra is a configuration management tool that retrieves the information included in the `*.yaml` files to facilitate the deployment of the application.
 
 To modify an experiment you can modify the configuration file `experiments/experiment.yaml`. **At your first use, you will have to modify the paths to the dataset and your wandb username.**
 

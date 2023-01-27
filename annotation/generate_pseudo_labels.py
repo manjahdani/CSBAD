@@ -29,7 +29,7 @@ args = parser.parse_args()
 7: truck
 8: boat
 """
-vehicules = [1, 2, 3, 4, 5, 6, 7, 8]
+vehicules = [2, 5, 7]
 
 # model
 model_name = "yolov8x6"
@@ -40,7 +40,7 @@ img_dir = f"{args.parent}/images"
 imgs = sorted(glob.glob(os.path.join(img_dir, f"*.{args.extension}")))
 
 # labels
-lbl_dir = f"{args.parent}/labels_{model_name}"
+lbl_dir = f"{args.parent}/labels"
 os.makedirs(lbl_dir, exist_ok=True)
 
 # inference
@@ -52,6 +52,6 @@ for i in tqdm(range(len(imgs))):
     str = ""
     for cls, box in zip(classes, boxes):
         if cls in vehicules:
-            str += f"{int(cls)} {box[0]} {box[1]} {box[2]} {box[3]}\n"
+            str += f"0 {box[0]} {box[1]} {box[2]} {box[3]}\n"
     with open(os.path.join(lbl_dir, f"{img_name}.txt"), mode="w") as f:
         f.write(str)
