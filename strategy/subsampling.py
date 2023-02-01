@@ -12,6 +12,51 @@ warnings.filterwarnings('ignore')
 
 DEFAULT_SUB_SAMPLE = 300
 
+def strategy_least_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPLE, aggregation_function: str = "max",
+                              **kwargs) -> list:
+    """
+    Performs active learning for object detection using the confidence scores.
+
+    Parameters:
+    - image_labels_path: paths to the .txt files with the object detections (last element of each line = confidence score).
+    - n: number of images to label.
+    - aggregation_function: how to compute the confidence of an image based on the confidence of the single objects:
+        a) "max": minmax approach, where the confidence of an image is given by the most confidently detected object.
+        b) "min": confidence of the whole image is given by the most difficult object detected.
+        c) "mean": average of all the confidence scores.
+
+    Returns:
+    - images_to_label: list of strings, paths to the .txt files with the images to be labeled
+    """
+    txt_files = [filename for filename in os.listdir(image_labels_path)]
+    if n <= 0:
+        raise SamplingException(f'You must select a strictly positive number of frames to select')
+    if n > len(txt_files):
+        raise SamplingException(f'Image bank contains {len(txt_files)} frames, but {n} frames where required for the '
+                                f'least confidence strategy !')
+    confidences = []
+    for txt_file in txt_files:
+        with open(image_labels_path+txt_file, 'r') as f:
+            lines = f.readlines()
+            if lines:
+                # If the file is not empty, compute the image confidence score
+                if aggregation_function == 'max':
+                    image_confidence = max([float(line.strip().split()[-1]) for line in lines])
+                elif aggregation_function == 'min':
+                    image_confidence = min([float(line.strip().split()[-1]) for line in lines])
+                elif aggregation_function == 'mean':
+                    object_confidences_scores = [float(line.strip().split()[-1]) for line in lines]
+                    image_confidence = sum(object_confidences_scores) / len(object_confidences_scores)
+                confidences.append((txt_file, image_confidence))
+
+        # Sort the images based on the confidence
+        confidences = sorted(confidences, key=lambda x: x[1])
+
+        # Get the paths to the images with the lowest confidence
+        images_to_label = [img for img, conf in confidences[:n]]
+
+    return images_to_label
+
 def strategy_n_first(image_folder_path: str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE, **kwargs) -> list:
     """
     :param image_folder_path: path to the bank image folder
