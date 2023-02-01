@@ -23,7 +23,8 @@ def strategy_least_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPL
     - aggregation_function: how to compute the confidence of an image based on the confidence of the single objects:
         a) "max": minmax approach, where the confidence of an image is given by the most confidently detected object.
         b) "min": confidence of the whole image is given by the most difficult object detected.
-        c) "mean": average of all the confidence scores.
+        c) "mean": average of all the confidence scores, it is not sensible to the number of objects detected.
+        d) "sum": sensible to the number of objects detected.
 
     Returns:
     - images_to_label: list of strings, paths to the .txt files with the images to be labeled
@@ -47,13 +48,67 @@ def strategy_least_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPL
                 elif aggregation_function == 'mean':
                     object_confidences_scores = [float(line.strip().split()[-1]) for line in lines]
                     image_confidence = sum(object_confidences_scores) / len(object_confidences_scores)
+                elif aggregation_function == 'sum':
+                    object_confidences_scores = [float(line.strip().split()[-1]) for line in lines]
+                    image_confidence = sum(object_confidences_scores)
+                else:
+                    raise SamplingException(f'You must select a valid aggregation function')
                 confidences.append((txt_file, image_confidence))
 
-        # Sort the images based on the confidence
-        confidences = sorted(confidences, key=lambda x: x[1])
+    # Sort the images based on the confidence
+    confidences = sorted(confidences, key=lambda x: x[1])
 
-        # Get the paths to the images with the lowest confidence
-        images_to_label = [img for img, conf in confidences[:n]]
+    # Get the paths to the images with the lowest (aggregated) confidence
+    images_to_label = [img for img, _ in confidences[:n]]
+
+    return images_to_label
+
+def strategy_entropy(image_labels_path: str, n: int = 1, aggregation_function: str = "sum", **kwargs) -> list:
+    """
+    Performs active learning for object detection using the confidence scores.
+    Similar to least-confidence with only one class.
+
+    Parameters:
+    - image_labels_path: paths to the .txt files with the object detections (last element of each line = confidence score).
+    - n: number of images to label.
+    - aggregation_function: how to compute the confidence of an image based on the confidence of the single objects:
+        a) "sum": for all the detections scores in the images (a low value effectively delays the selection of empty examples).
+        b) "mean": not sensible to the number of detections.
+        c) "max": focusing on the most difficult object, independently of how many easy are there.
+
+    Returns:
+    - images_to_label: list of strings, paths to the .txt files with the images to be labeled
+    """
+    txt_files = [filename for filename in os.listdir(image_labels_path)]
+    if n <= 0:
+        raise SamplingException(f'You must select a strictly positive number of frames to select')
+    if n > len(txt_files):
+        raise SamplingException(f'Image bank contains {len(txt_files)} frames, but {n} frames where required for the '
+                                f'least confidence strategy !')
+    uncertainty_scores = []
+    for txt_file in txt_files:
+        with open(image_labels_path+txt_file, 'r') as f:
+            lines = f.readlines()
+            if lines:
+                confidences_scores_img = [float(l.split()[-1]) for l in lines]
+                entropies = -np.multiply(confidences_scores_img, np.log2(confidences_scores_img))
+                if aggregation_function == 'sum':
+                    image_entropy = np.sum(entropies)
+                elif aggregation_function == 'mean':
+                    image_entropy = np.mean(entropies)
+                elif aggregation_function == 'max':
+                    image_entropy = np.max(entropies)
+                elif aggregation_function == 'min':
+                    image_entropy = np.max(entropies)
+                else:
+                    raise SamplingException(f'You must select a valid aggregation function')
+                uncertainty_scores.append((txt_file, image_entropy))
+
+    # Sort the images based on the confidence
+    uncertainty_scores = sorted(uncertainty_scores, key=lambda x: x[1], reverse=True)
+
+    # Get the paths to the images with the highest uncertainty (aggregated entropy)
+    images_to_label = [img for img, _ in uncertainty_scores[:n]]
 
     return images_to_label
 
