@@ -18,7 +18,7 @@ cam_walt: 1                             # camera number
 week_walt: 2                             # week number
 
 # For AI-city dataset
-path_ai-city: "YOURPATH/TO/AI-city"     # your path root folder
+path_ai-city: "YOURPATH/TO/AI-City-challenge"     # your path root folder
 scene_ai-city: "05"                     # scene number
 cam_ai-city: "016"                      # camera number
 

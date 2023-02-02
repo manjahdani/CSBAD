@@ -2,4 +2,4 @@ names:
   0: vehicule
 path: ""
 train: train
-val: val
+val: test

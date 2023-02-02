@@ -1,3 +1,4 @@
+import wandb
 import yaml
 import hydra
 
@@ -19,17 +20,25 @@ def main(config):
     # generate train folder
     build_train_folder(config.train)
 
+    # update data files
+    update_config_file(config.dataset.data_path, config.model.data)
+    update_config_file(config.dataset.data_path, config.model.test)
+
     # init model
-    with open(config.model.data, mode="r") as f:
-        data = yaml.load(f, Loader=yaml.FullLoader)
-    data["path"] = config.dataset.data_path
-    with open(config.model.data, mode="w") as f:
-        yaml.dump(data, f)
     model = YOLO(config.model.weights, cmd_args=config.model)
     model.train(
         data=config.model.data, epochs=config.model.epochs, batch=config.model.batch
     )
+    model.val(data=config.model.test)
+    wandb.finish()
 
+
+def update_config_file(path, config_path):
+    with open(config_path, mode="r") as f:
+        data = yaml.load(f, Loader=yaml.FullLoader)
+    data["path"] = path
+    with open(config_path, mode="w") as f:
+        yaml.dump(data, f)
 
 if __name__ == "__main__":
     main()

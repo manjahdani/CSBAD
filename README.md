@@ -10,7 +10,7 @@ cd trail22KD
 
 ### Create conda env
 ```bash
-conda conda create -y --name trail22kd python pip
+conda create -y --name trail22kd python pip
 conda activate trail22kd
 ```
 
@@ -35,13 +35,13 @@ Your dataset folder should follow the same structure:
 ```
 WALT-challenge
 ├── cam{1}
-│   ├── test
-│   │   ├── images
-│   │   └──  labels
 │   ├── week{1}
 │   │   └── bank
-│   │       ├── images
-│   │       └── labels_yolov8x6
+│   │   │   ├── images
+│   │   │   └── labels
+|   |   └── test
+│   │       ├── images
+│   │       └── labels
 .   .
 │   └── week{i}
 │       └── ...
@@ -61,12 +61,6 @@ AI-city
 │   ├── test
 │   │   ├── images
 │   │   └── labels
-│   ├── train
-│   │   ├── images
-│   │   └── labels
-│   └── val
-│       ├── images
-│       └── labels
 .
 └── S{i}c{j}
     └── ...

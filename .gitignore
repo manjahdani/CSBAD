@@ -162,4 +162,5 @@ cython_debug/
 
 yolov5/
 runs/
+multirun/
 outputs/
