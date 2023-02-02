@@ -5,5 +5,5 @@ image_path: "${dataset.bank_path}/images"
 label_path: "${dataset.bank_path}/labels"
 extension: "png"
 
-basename: "AI-city-tests"
+basename: "AI-city"
 name: "${dataset.basename}-s${scene_ai-city}c${cam_ai-city}"
