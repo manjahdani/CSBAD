@@ -27,7 +27,7 @@ def strategy_least_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPL
         d) "sum": sensible to the number of objects detected.
 
     Returns:
-    - images_to_label: list of strings, paths to the .txt files with the images to be labeled
+    - images_to_label: list of strings, names of the images to be labeled (without extension)
     """
     txt_files = [filename for filename in os.listdir(image_labels_path)]
     if n <= 0:
@@ -58,8 +58,8 @@ def strategy_least_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPL
     # Sort the images based on the confidence
     confidences = sorted(confidences, key=lambda x: x[1])
 
-    # Get the paths to the images with the lowest (aggregated) confidence
-    images_to_label = [img for img, _ in confidences[:n]]
+    # Get the paths to the images with the lowest confidence
+    images_to_label = [os.path.splitext(img)[0] for img, _ in confidences[:n]]
 
     return images_to_label
 
