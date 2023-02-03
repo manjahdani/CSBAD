@@ -246,7 +246,7 @@ def diversify_classes (counts, n:int = DEFAULT_SUB_SAMPLE):
     assert sum(dis)==n, 'The sum of the distribution does not match the wanted sample'
     return dis
 
-def strategy_frequency(image_folder_path: str, bank_folder_path : str, imgExtension: str, n_groups : int = 10, n: int = DEFAULT_SUB_SAMPLE):
+def strategy_frequency(image_folder_path: str, bank_folder_path : str, imgExtension: str, n_groups : int = 10, n: int = DEFAULT_SUB_SAMPLE, **kwargs):
     """
     : param image_folder_path: path to the bank image folder
     : param n: number of frames to select
