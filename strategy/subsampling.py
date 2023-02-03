@@ -3,9 +3,9 @@ import random
 import cv2
 import numpy as np
 from tqdm import tqdm
-from .utils import *
+from utils import *
 import pandas as pd
-
+from os.path import exists
 # Ignoring numpy warnings
 import warnings
 warnings.filterwarnings('ignore')
@@ -199,3 +199,96 @@ def strategy_flow_interval_mix(image_folder_path: str, imgExtension: str, val_si
 
     output_list.sort()
     return output_list
+def generate_path_to_frequencies(image_folder_path: str, imgExtension: str):
+    
+    os.chdir(image_folder_path)
+    dic = {}
+    count1 = 0
+    for file in glob.glob("images/*."+imgExtension):
+        print(str(count1)+  "- Processing image " + str(file))
+        sumFrequency_original, sumFrequency_removed = Frequency(image_path=outfolder+file)
+        dic[file] = [np.absolute(sumFrequency_original), np.absolute(sumFrequency_removed)]
+        count1=count1+1
+    sumFrequencyDataset = pd.DataFrame.from_dict(dic, orient='index', columns=['frequency','frequency_filtered'])
+    sumFrequencyDataset.to_csv('frequencies.txt', sep='\t')
+    return (image_folder_path+'frequencies.txt')
+
+
+def diversify_classes (counts, n:int = DEFAULT_SUB_SAMPLE):
+    #STEP 1 - Computing the ratios
+    ratios = counts/(sum(counts)) # The ratio of the number of instance per class
+    dis = np.round(ratios*n) # The distribution without correction
+    
+    # STEP 2. Sanity Check # 1 - Compensentating rounding errors. The sum in dis may not equal n but will always be inferior. 
+    if(sum(dis)<n):
+        index_min = np.where(dis==np.min(dis)) #We try to sele
+        toBalance = n-sum(dis) #We check the number of missing 
+        for c in index_min[0]:
+            if(toBalance>0):
+                dis[c]=1
+                toBalance=toBalance-1
+        #Diversify 
+    
+    index_max = np.where(dis==np.max(dis))
+    class_with_zeros = np.where(dis==0.)
+    #Balancing null elements
+    if((np.max(dis)<n) & (np.any(class_with_zeros))):
+        print('Must and can balance frequence class')
+        for c in class_with_zeros[0]:
+            if(dis[index_max]>1):
+                dis[index_max]=dis[index_max]-1
+                dis[c]=1
+            else:
+                print('Imperfect balance')
+    
+    #Sanity checks
+    assert np.all((dis>=0) | np.all(dis<0)),'Issue with the distribution, it contains negative assignation'
+    assert sum(dis)==n, 'The sum of the distribution does not match the wanted sample'
+    return dis
+
+def strategy_frequency(image_folder_path: str, bank_folder_path : str, imgExtension: str, n_groups : int = 10, n: int = DEFAULT_SUB_SAMPLE):
+    """
+    : param image_folder_path: path to the bank image folder
+    : param n: number of frames to select
+    : param n_groups : number of wanted clusters.
+    : return output_list: a list containing the selected images path
+    """
+    if(exists(os.path.join(bank_folder_path, 'frequencies.txt'))):
+        path_to_frequencies = os.path.join(bank_folder_path, 'frequencies.txt')
+    else:
+        print('Must generate')
+        #path_to_frequencies = generate_path_to_frequencies(os.path.join(bank_folder_path, 'frequencies.txt'), imgExtension)
+        
+    
+    df = pd.read_csv(path_to_frequencies, sep='\t',index_col=0)
+    sortedDataFiltered = df.sort_values(by=['frequency_filtered'], ascending=False)
+    groups = 10 #Hyperparameter of the method. It gives the number of expected cluster. 
+    (counts, bins) = np.histogram(sortedDataFiltered.get('frequency_filtered'),groups) #Bins are the edges of the different cluster 
+    
+    #STEP 2 - Generation of conditions for clustering.
+    #Generation of conditions for clustering. : EXAMPLE of the output for 3 groups. 
+    '''
+    condlist = [(sortedDataFiltered.frequency_filtered  >= bins[0]) & (sortedDataFiltered.frequency_filtered<=bins[1]), 
+            (sortedDataFiltered.frequency_filtered  > bins[1]) & (sortedDataFiltered.frequency_filtered<=bins[2]), 
+            (sortedDataFiltered.frequency_filtered  > bins[2]) & (sortedDataFiltered.frequency_filtered<=bins[3])]
+    '''
+    
+    condlist = [None] * len(counts) #Initalization of the condition list to assign the group
+    for l in range(0,len(bins)-1):
+        condlist[l] = (sortedDataFiltered.frequency_filtered  >= bins[l]) & (sortedDataFiltered.frequency_filtered<=bins[l+1]) #@Fixme, In this version the borders's class will be outwritten. We don't care as the method is not sensitive to borders. 
+    
+    #STEP 3 - Clustering
+    condarray = np.array(condlist) # bool representation where each row is a condition and each column is a row of the df
+    cond_true = [np.where(i)[0] for i in condarray.T]
+    sortedDataFiltered['group']=cond_true    
+    
+    #Step 4 - Inter-cluster diversification
+    dis = diversify_classes(counts,n) #Distribution
+    
+    #STEP 5 - Selection
+    selected_images = pd.DataFrame()
+    for i in range(0,len(dis)):
+        to_select = sortedDataFiltered[sortedDataFiltered['group']==i].head(int(dis[i]))
+        selected_images = selected_images.append(to_select)
+    print(selected_images)
+    return list(selected_images.index)
