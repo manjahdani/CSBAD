@@ -162,7 +162,6 @@ class DetectionValidator(BaseValidator):
         return torch.tensor(correct, dtype=torch.bool, device=detections.device)
 
     def get_dataloader(self, dataset_path, batch_size):
-        print(f'!!!USING!!! : {dataset_path}')
         # TODO: manage splits differently
         # calculate stride - check if model is initialized
         gs = max(int(de_parallel(self.model).stride if self.model else 0), 32)

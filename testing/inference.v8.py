@@ -15,7 +15,9 @@ from ultralytics import YOLO
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 TMP_DATA_YAML = os.path.join(BASE_PATH, 'data.yaml')
 
-METRICS = ['metrics/precision(B)', 'metrics/recall(B)', 'metrics/mAP50(B)', 'metrics/mAP50-95(B)', 'fitness']
+STRATEGIES = ['n_first', 'fixed_interval', 'flow_diff', 'flow_interval_mix', 'random']
+# METRICS = ['metrics/precision(B)', 'metrics/recall(B)', 'metrics/mAP50(B)', 'metrics/mAP50-95(B)', 'fitness']
+METRICS = ['precision', 'recall', 'mAP50', 'mAP50-95', 'fitness']
 
 def get_weights(weights_path, project):
     weights = os.listdir(weights_path)
@@ -24,10 +26,17 @@ def get_weights(weights_path, project):
 
 def build_run_info(weight, dataset_path, project):
     run = weight.split('/')[-1]
+
+    for strategy in STRATEGIES:
+        if strategy in run.split(project)[1]:
+            break
+
     return {
         'id': run.split('.')[0],
+        'data-name': '-'.join(run.split(project)[1].strip('-').split('_')[0].split('-')),
+        'strategy': strategy,
+        'samples': int(run.split(project)[1].split(strategy)[1].strip('_').split('.')[0].split('-')[0]),
         'data': os.path.join(dataset_path, *run.split(project)[1].strip('-').split('_')[0].split('-')),
-        'data-name': '-'.join(run.split(project)[1].strip('-').split('_')[0].split('-'))
     }
 
 def main(weights_path, csv_path, dataset_path, project, base_data_yaml, task):
@@ -46,7 +55,7 @@ def main(weights_path, csv_path, dataset_path, project, base_data_yaml, task):
     if not os.path.isfile(csv_path):
         with open(csv_path, 'w') as f:
             writer = csv.writer(f)
-            writer.writerow(['run_id', 'data-name', *METRICS])
+            writer.writerow(['run_id', 'data-name', 'strategy', 'samples', *METRICS])
 
     testable = 0
     with open(csv_path, 'r') as f:
@@ -59,16 +68,16 @@ def main(weights_path, csv_path, dataset_path, project, base_data_yaml, task):
                     testable += 1
 
     print(f'Found {len(runs)} runs for project {project} of which {testable} need testing')
-    print(tabulate([r.values() for r in runs], headers=['RUN-ID', 'DATA', 'MODEL', 'TESTED']))
+    print(tabulate([r.values() for r in runs], headers=['RUN-ID', 'DATA-SHORT-NAME', 'STRATEGY', 'SAMPLES', 'DATA', 'MODEL', 'TESTED']))
     
     # testing
-    for run in runs:
+    for i, run in enumerate(runs):
         try:
             if run['tested'] == 'YES':
                 print(f"Run {run['id']}:{run['data-name']} has already been tested.............Done")
                 continue
             
-            print(f'Testing... : {run["id"]}')
+            print(f'[{i+1}/{len(runs)}] Testing... : {run["id"]}')
             build_yaml_file(base_data_yaml, run['data'])
             model = YOLO(run['model'])
             results = model.val(data=TMP_DATA_YAML, task=task)
@@ -76,7 +85,7 @@ def main(weights_path, csv_path, dataset_path, project, base_data_yaml, task):
             if len(results) == len(METRICS):
                 with open(csv_path, 'a+') as f:
                     writer = csv.writer(f)
-                    writer.writerow([run['id'], run['data-name'], *list(results.values())])
+                    writer.writerow([run['id'], run['data-name'], run['strategy'], run['samples'], *list(results.values())])
             else:
                 print('TESTING ERROR. NOT SAVING !')
 
