@@ -5,6 +5,7 @@ import cv2
 import argparse
 from tabulate import tabulate
 import time
+import logging
 
 import gc
 import torch
@@ -94,8 +95,10 @@ def main(weights_path, csv_path, dataset_path, project, base_data_yaml, task):
             time.sleep(1)
             torch.cuda.empty_cache()
             gc.collect()
-        except Exception as e:
+        except AssertionError as e:
             print(e)
+        except Exception as e:
+            logging.exception(e)
 
 
 
@@ -125,8 +128,8 @@ if __name__ == "__main__":
                     help='The project name used in the wandb runs')
     ap.add_argument('-y', '--data-template', type=str, required=True,
                     help='Template yaml file for the dataset')
-    ap.add_argument('-f', '--folder', type=str, required=True, default='test',
-                    help='Template yaml file for the dataset')
+    ap.add_argument('-f', '--folder', type=str, required=False, default='test',
+                    help='Set the folder to be used for testing: val or test')
     args = ap.parse_args()
 
     main(args.weights_path, args.csv_path, args.dataset_path, args.project, args.data_template, args.folder)
