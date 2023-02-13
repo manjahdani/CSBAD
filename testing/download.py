@@ -36,7 +36,7 @@ class Downloader:
             if run.id in runs:
                 runs[runs.index(run.id)] = run
             if run.name in runs:
-                runs[runs.index(run.name)] = run 
+                runs[runs.index(run.name)] = run
 
         runs_found = []
         for run in runs:
