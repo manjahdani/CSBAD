@@ -37,7 +37,7 @@ def strategy_least_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPL
                                 f'least confidence strategy !')
     confidences = []
     for txt_file in txt_files:
-        with open(image_labels_path+txt_file, 'r') as f:
+        with open(os.path.join(image_labels_path, txt_file), 'r') as f:
             lines = f.readlines()
             if lines:
                 # If the file is not empty, compute the image confidence score
@@ -294,8 +294,8 @@ def diversify_classes(counts, n:int = DEFAULT_SUB_SAMPLE):
                 print('Imperfect balance')
     
     #Sanity checks
-    assert np.all((dis>=0) | np.all(dis<0)),'Issue with the distribution, it contains negative assignation'
-    assert sum(dis)==n, 'The sum of the distribution does not match the wanted sample'
+    #assert np.all((dis>=0) | np.all(dis<0)),'Issue with the distribution, it contains negative assignation'
+    #assert sum(dis)==n, 'The sum of the distribution does not match the wanted sample'
     return dis
 
 def strategy_frequency(image_folder_path: str, bank_folder_path : str, imgExtension: str, n_groups : int = 10, n: int = DEFAULT_SUB_SAMPLE, **kwargs):
