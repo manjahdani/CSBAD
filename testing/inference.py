@@ -21,7 +21,7 @@ elif __name__ == 'testing.inference':
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 TMP_DATA_YAML = os.path.join(BASE_PATH, 'data.yaml')
 
-STRATEGIES = ['n_first', 'fixed_interval', 'flow_diff', 'flow_interval_mix', 'random', 'entropy', 'frequency']
+STRATEGIES = ['n_first', 'fixed_interval', 'flow_diff', 'flow_interval_mix', 'random', 'entropy', 'frequency', "confidence_max", "confidence_min"]
 # METRICS = ['metrics/precision(B)', 'metrics/recall(B)', 'metrics/mAP50(B)', 'metrics/mAP50-95(B)', 'fitness']
 METRICS = ['precision', 'recall', 'mAP50', 'mAP50-95', 'fitness']
 
@@ -41,9 +41,10 @@ def build_run_info(weight, dataset_path, project):
     # '-'.join(run.split(project)[1].strip('-').split('_')[0].split('-')),
     return {
         'id': run.split('.')[0],
-        'data-name': run.split(project)[1].strip('-').split('_')[0].split('-')[0],
+        # 'data-name': run.split(project)[1].strip('-').split('_')[0].split('-')[0],
+        'data-name': '-'.join(run.split(project)[1].strip('-').split('_')[0].split('-')),
         'strategy': strategy,
-        'samples': int(run.split(project)[1].split(strategy)[1].strip('_').split('.')[0].split('-')[0]),
+        'samples': int(run.split(project)[1].split(strategy)[1].strip('_').split('.')[0].split('-')[0].split('_')[0]),
         'data': os.path.join(dataset_path, run.split(project)[1].strip('-').split('_')[0].split('-')[0]), # *run.split(project)[1].strip('-').split('_')[0].split('-')
     }
 
