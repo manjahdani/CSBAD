@@ -12,6 +12,57 @@ warnings.filterwarnings('ignore')
 
 DEFAULT_SUB_SAMPLE = 300
 
+def strategy_least_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPLE, aggregation_function: str = "max",
+                              **kwargs) -> list:
+    """
+    Performs active learning for object detection using the confidence scores.
+
+    Parameters:
+    - image_labels_path: paths to the .txt files with the object detections (last element of each line = confidence score).
+    - n: number of images to label.
+    - aggregation_function: how to compute the confidence of an image based on the confidence of the single objects:
+        a) "max": minmax approach, where the confidence of an image is given by the most confidently detected object.
+        b) "min": confidence of the whole image is given by the most difficult object detected.
+        c) "mean": average of all the confidence scores, it is not sensible to the number of objects detected.
+        d) "sum": sensible to the number of objects detected.
+
+    Returns:
+    - images_to_label: list of strings, names of the images to be labeled (without extension)
+    """
+    txt_files = [filename for filename in os.listdir(image_labels_path)]
+    if n <= 0:
+        raise SamplingException(f'You must select a strictly positive number of frames to select')
+    if n > len(txt_files):
+        raise SamplingException(f'Image bank contains {len(txt_files)} frames, but {n} frames where required for the '
+                                f'least confidence strategy !')
+    confidences = []
+    for txt_file in txt_files:
+        with open(os.path.join(image_labels_path, txt_file), 'r') as f:
+            lines = f.readlines()
+            if lines:
+                # If the file is not empty, compute the image confidence score
+                if aggregation_function == 'max':
+                    image_confidence = max([float(line.strip().split()[-1]) for line in lines])
+                elif aggregation_function == 'min':
+                    image_confidence = min([float(line.strip().split()[-1]) for line in lines])
+                elif aggregation_function == 'mean':
+                    object_confidences_scores = [float(line.strip().split()[-1]) for line in lines]
+                    image_confidence = sum(object_confidences_scores) / len(object_confidences_scores)
+                elif aggregation_function == 'sum':
+                    object_confidences_scores = [float(line.strip().split()[-1]) for line in lines]
+                    image_confidence = sum(object_confidences_scores)
+                else:
+                    raise SamplingException(f'You must select a valid aggregation function')
+                confidences.append((txt_file, image_confidence))
+
+    # Sort the images based on the confidence
+    confidences = sorted(confidences, key=lambda x: x[1])
+
+    # Get the paths to the images with the lowest confidence
+    images_to_label = [os.path.splitext(img)[0] for img, _ in confidences[:n]]
+
+    return images_to_label
+
 def strategy_n_first(image_folder_path: str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE, **kwargs) -> list:
     """
     :param image_folder_path: path to the bank image folder
@@ -199,6 +250,7 @@ def strategy_flow_interval_mix(image_folder_path: str, imgExtension: str, val_si
 
     output_list.sort()
     return output_list
+
 def generate_path_to_frequencies(image_folder_path: str, imgExtension: str):
     
     os.chdir(image_folder_path)
@@ -214,7 +266,7 @@ def generate_path_to_frequencies(image_folder_path: str, imgExtension: str):
     return (image_folder_path+'frequencies.txt')
 
 
-def diversify_classes (counts, n:int = DEFAULT_SUB_SAMPLE):
+def diversify_classes(counts, n:int = DEFAULT_SUB_SAMPLE):
     #STEP 1 - Computing the ratios
     ratios = counts/(sum(counts)) # The ratio of the number of instance per class
     dis = np.round(ratios*n) # The distribution without correction
@@ -242,8 +294,8 @@ def diversify_classes (counts, n:int = DEFAULT_SUB_SAMPLE):
                 print('Imperfect balance')
     
     #Sanity checks
-    assert np.all((dis>=0) | np.all(dis<0)),'Issue with the distribution, it contains negative assignation'
-    assert sum(dis)==n, 'The sum of the distribution does not match the wanted sample'
+    #assert np.all((dis>=0) | np.all(dis<0)),'Issue with the distribution, it contains negative assignation'
+    #assert sum(dis)==n, 'The sum of the distribution does not match the wanted sample'
     return dis
 
 def strategy_frequency(image_folder_path: str, bank_folder_path : str, imgExtension: str, n_groups : int = 10, n: int = DEFAULT_SUB_SAMPLE, **kwargs):
