@@ -15,7 +15,7 @@ DEFAULT_SUB_SAMPLE = 300
 def strategy_least_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPLE, aggregation_function: str = "max",
                               **kwargs) -> list:
     """
-    Performs active learning for object detection using the confidence scores.
+    Performs active learning for object detection using the confidence scores (least confident examples are returned).
 
     Parameters:
     - image_labels_path: paths to the .txt files with the object detections (last element of each line = confidence score).
@@ -66,7 +66,7 @@ def strategy_least_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPL
 def strategy_top_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPLE, aggregation_function: str = "max",
                               **kwargs) -> list:
     """
-    Performs active learning for object detection using the confidence scores.
+    Performs active learning for object detection using the confidence scores (most confident examples are returned).
 
     Parameters:
     - image_labels_path: paths to the .txt files with the object detections (last element of each line = confidence score).
