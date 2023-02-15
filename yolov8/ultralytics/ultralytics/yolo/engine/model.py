@@ -245,4 +245,4 @@ class YOLO:
         args.pop("v5loader", None)
 
         # set device to '' to prevent from auto DDP usage
-        args["device"] = ''
+        args["device"] = "cpu"#''

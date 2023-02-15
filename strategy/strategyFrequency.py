@@ -28,13 +28,13 @@ def removeRegion(dataFourier, R):
     regionList_removed = copy.deepcopy(regionList)#just to be able to show the split of the image
     regionList_removed[np.argmax(sumFrequency)] = np.zeros(block.shape)
     return regionList, regionList_removed
-def stategyFrequency(image_path, plotFig=False):
-    data = imread(image_path)
-    data = rgb2gray(data)
-    (W, H) = data.shape
-    data_fourier = np.fft.fftshift(np.fft.fft2(data))
+def Frequency(image_path, plotFig=False):
+    data = imread(image_path) #Read one image
+    data = rgb2gray(data)   #Convert to gray 
+    (W, H) = data.shape #Retrieve the width and the height of the cameras
+    data_fourier = np.fft.fftshift(np.fft.fft2(data)) #Computation of the fourier transform.
     data_fourier_copy = copy.deepcopy(data_fourier)
-    data_fourier_filtered = highpassFilter(data_fourier_copy, n=10)
+    data_fourier_filtered = highpassFilter(data_fourier_copy, n=25)
     data_filtered = np.fft.ifft2(np.fft.ifftshift(data_fourier_filtered)).real
 
     R = 4
@@ -49,7 +49,9 @@ def stategyFrequency(image_path, plotFig=False):
     image_removed = np.fft.ifft2(np.fft.ifftshift(data_fourier_removed)).real
     sumFrequency_original = data_fourier.sum()
     sumFrequency_removed = data_fourier_removed.sum()
-
+    
+    #print("Frequency original f = %2.3f" % np.absolute(sumFrequency_original))
+    #print("Frequency removed  S = %2.3f" % np.absolute(sumFrequency_removed))
     if plotFig:
         fig, ax = plt.subplots(nrows=3, ncols=4)
         ax[0,0].imshow(data, cmap='gray')
@@ -83,23 +85,7 @@ def stategyFrequency(image_path, plotFig=False):
         ax[2,1].set_title("Image removed")
 
         plt.show()
-
-        return sumFrequency_original, sumFrequency_removed
-outfolder = "E:/Data_workshop/cam1/week1/train/images/"
-os.chdir(outfolder)
-sum1 = []
-sum2 = []
-count1 = 0
-for file in glob.glob("*.jpg"):
-    if count1 < 10:
-        sumFrequency_original, sumFrequency_removed = stategyFrequency(image_path=outfolder+file)
-        sum1.append(sumFrequency_original)
-        sum2.append(sumFrequency_removed)
-
-sortedOriginal = sorted(sum1)
-
-
-
-
+        
+    return sumFrequency_original, sumFrequency_removed
 
 

@@ -1,7 +1,7 @@
 import argparse
 import os
-from .subsampling import *
-from .utils import copy_subsample
+from subsampling import *
+import utils 
 from hydra.utils import call
 
 
@@ -30,7 +30,7 @@ if __name__ == "__main__":
     ap.add_argument('--val_size', type=int, required=False, default=300, help='Validation set size. Default is 300')
     args = ap.parse_args()
 
-    assert args.strat_name in ['n_first', 'random', 'fixed_interval', 'flow_diff', 'flow_interval_mix', 'entropy']
+    assert args.strat_name in ['n_first', 'random', 'fixed_interval', 'flow_diff', 'flow_interval_mix', 'entropy','frequency']
 
     bank_folder = os.path.join(args.folder_path, 'bank')
     bank_imgs_folder = os.path.join(bank_folder, 'images')
@@ -54,13 +54,15 @@ if __name__ == "__main__":
         subsample_names = strategy_flow_interval_mix(image_folder_path=bank_imgs_folder, n=args.n_frames,
                                                      difference_ratio=difference_ratio,
                                                      movement_percent=movement_percent, imgExtension=args.img_extension, val_size=args.val_size)
+    elif args.strat_name == 'frequency':
+        subsample_names = strategy_frequency(image_folder_path=bank_imgs_folder, n=args.n_frames, imgExtension=args.img_extension, bank_folder_path = bank_folder)
 
     name_file = ''
     for a in vars(args):
         if (a != 'folder_path' and a != 'entropy_file'):
             name_file = name_file + a + '-' + str(vars(args)[a]) + '-'
 
-    create_log_file(str(args.folder_path), name_file, subsample_names)
+    #create_log_file(str(args.folder_path), name_file, subsample_names)
     copy_subsample(subsample_names, bank_folder, train_folder,imgExtension=args.img_extension,labelsFolder=args.labels_folder)
 
 
