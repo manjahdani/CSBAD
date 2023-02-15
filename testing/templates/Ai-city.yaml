@@ -1,0 +1,8 @@
+path: WILL BE AUTOMATICALLY FILLED DURING TESTING !
+train: train # OPTIONAL
+val: test  # OPTIONAL
+test: test   # IMPORTANT 
+
+# Classes # IMPORTANT
+nc: 1  # number of classes
+names: ['vehicle']

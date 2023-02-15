@@ -107,6 +107,37 @@ The logs, outputs and stuffs of your runs are automatically outputed in the `out
 
 *remark*: if you are using Windows, do not forget to adapt your paths by using `/` instead of **not** `\` or `//`.
 
+
+## Download, test and generate plots
+
+- `--run-prefix` : wandb project name
+- `--entity` : wandb project team
+- `--project` : project name used as prefix in the runs names (sometimes it's different than the wandb project name, like in the case of "study")
+- `--template` : template file for data.yaml used to specify test "sub"datasets
+- `--dataset_path` : parent path containing all dataset folders (S0XC0XX in case of AI-City, camX in case of WALT) 
+
+```
+python test.py --run-prefix AI-city --entity trail22kd --project Ai-city --template testing/templates/Ai-city.yaml --dataset_path /mnt/ad2e7514-1ee8-465d-8ea9-010c3411d4e4/TRAIL/dataset
+```
+
+Results will be in `testdir/project`. `wandb` folder containing downloaded weights, `inference_results.csv` containing inference results, and `plots` folder containing generated plots. Modify plots look in `testing/plot.py`
+
+You can also run script individually :
+
+```
+# download 
+python testing/download.py -e trail22kd -p Ai-city -f ./testdir/Ai-city/wandb -lf -d
+
+# inference
+python3 ./testing/inference.py -w ./testing/Ai-city/wandb -d /mnt/ad2e7514-1ee8-465d-8ea9-010c3411d4e4/TRAIL/dataset -p AI-city -y testing/templates/Ai-city.yaml -f test -c ./testdir/Ai-city/inference_results.csv
+
+# coco student inference (teacher: change --model yolov8n to yolov8x)
+python3 testing/inference_coco.py --model yolov8n --csv_path ./testdir/Ai-city/inference_results.csv --dataset "s05c016->/mnt/ad2e7514-1ee8-465d-8ea9-010c3411d4e4/TRAIL/dataset/s05c016/" --dataset "s05c017->/mnt/ad2e7514-1ee8-465d-8ea9-010c3411d4e4/TRAIL/dataset/s05c017/" --data-template testing/templates/Ai-city.yaml --folder test
+
+# plotting
+python testing/plot.py --csv_path ./testdir/Ai-city/inference_results.csv --save_path ./testdir/Ai-city/plots
+```
+
 ---
 # Deprecated
 
@@ -115,7 +146,7 @@ The logs, outputs and stuffs of your runs are automatically outputed in the `out
 Clone the YoloV5 repo :
 
 ```
-git clone -b v6.2.1 https://github.com/Gerin-Benoit/yolov5
+git clone -b v6.2.1 https://github.com/ultralytics/yolov5
 ```
 
 Install [Docker](https://docs.docker.com/get-docker/) and [Docker Nvidia GPU Support](https://docs.nvidia.com/datacenter/cloud-native/container-toolkit/overview.html)

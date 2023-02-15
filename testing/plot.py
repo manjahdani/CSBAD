@@ -24,7 +24,7 @@ ticks_x = [0, 25, 50, 75, 100]
 ticks_y = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
 
 interval_to_show_x = [15, 110]
-interval_to_show_y = [0.5, 1]
+interval_to_show_y = [0.0, 1]
 
 def get_color(label):
     return MODELS_COLORS[MODELS.index(label)]
@@ -32,7 +32,7 @@ def get_color(label):
 def get_coco_label(label):
     return STUDENT_TEACHER_CONFIG[MODELS.index(label)] + ':' + label
     
-def create_plots(dfs_strategy, dfs_coco):
+def create_plots(dfs_strategy, dfs_coco, save_path):
     for (metric, df_strat), (_, df_coco) in zip(dfs_strategy.items(), dfs_coco.items()):
         samples = list(df_strat.columns)
         samples.sort()
@@ -57,6 +57,9 @@ def create_plots(dfs_strategy, dfs_coco):
         plt.legend(list(df_strat.index), loc = 'lower right')
 
         plt.legend()
+
+        plt.savefig(os.path.join(save_path, metric + '.png'))
+
         plt.show()
 
 
@@ -70,7 +73,7 @@ def pivot(df):
     return dfs
 
 
-def main(csv_path):
+def main(csv_path, save_path):
     csv_path = os.path.abspath(csv_path)
 
     df = pd.read_csv(csv_path, sep=',')
@@ -83,11 +86,11 @@ def main(csv_path):
 
     df_strategy = df[['strategy', 'samples', *METRICS]].loc[~df['strategy'].isin(MODELS)]
     dfs_strategy = pivot(df_strategy)
-    
+   
     df_coco = df[['strategy', 'samples', *METRICS]].loc[df['strategy'].isin(MODELS)]
     dfs_coco = pivot(df_coco)
 
-    create_plots(dfs_strategy, dfs_coco)
+    create_plots(dfs_strategy, dfs_coco, save_path)
 
 
 
@@ -96,6 +99,8 @@ if __name__ == "__main__":
 
     ap.add_argument('-c', '--csv_path', type=str, required=True,
                     help='The path to the CSV with the results')
+    ap.add_argument('-s', '--save_path', type=str, required=True,
+                    help='The path of the folder to save the plots to')
     args = ap.parse_args()
 
-    main(args.csv_path)
+    main(args.csv_path, args.save_path)

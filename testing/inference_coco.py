@@ -10,8 +10,13 @@ import logging
 import gc
 import torch
 
-sys.path.append(os.path.join(sys.path[0], '..', "yolov8", "ultralytics"))
-from ultralytics import YOLO
+if __name__ == '__main__':
+    sys.path.append(os.path.join(sys.path[0], '..', "yolov8", "ultralytics"))
+    from ultralytics import YOLO
+elif __name__ == 'testing.inference_coco':
+    sys.path.append(os.path.join(sys.path[0], "yolov8", "ultralytics"))
+    from ultralytics import YOLO
+
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 TMP_DATA_YAML = os.path.join(BASE_PATH, 'data.yaml')

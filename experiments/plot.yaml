@@ -1,0 +1,29 @@
+defaults:
+  - _self_
+  # change for the dataset name you want to use
+  # either WALT or AI-city
+  - dataset: WALT
+  # change for the strategy name you want to use
+  # either random or n-first
+  - strategy: random 
+  - val: val            # no changes here
+  - train: train        # no changes here
+  - model: yolov8       # no changes here
+
+n_samples: 25           # your strategy number of samples: [25, 50, 75, 100]
+
+# For WALT dataset
+path_walt: "YOURPATH/TO/WALT-challenge" # your path root folder
+cam_walt: 1                             # camera number
+week_walt: 2                             # week number
+
+# For AI-city dataset
+path_ai-city: "YOURPATH/TO/AI-City-challenge"     # your path root folder
+scene_ai-city: "05"                     # scene number
+cam_ai-city: "016"                      # camera number
+
+# no changes here
+project_dir: "${hydra:runtime.cwd}"
+hydra:
+  job:
+    chdir: true
