@@ -22,7 +22,7 @@ BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 TMP_DATA_YAML = os.path.join(BASE_PATH, 'data.yaml')
 
 METRICS = ['precision', 'recall', 'mAP50', 'mAP50-95', 'fitness']
-MODELS = ['yolov8n', 'yolov8s', 'yolov8m', 'yolov8l', 'yolov8x']
+MODELS = ['yolov8n', 'yolov8s', 'yolov8m', 'yolov8l', 'yolov8x6']
 
 def main(model, csv_path, datasets, base_data_yaml, task):
     runs = []

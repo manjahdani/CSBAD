@@ -42,6 +42,7 @@ if __name__ == "__main__":
         args.csv_path,
         args.dataset_path,
         args.run_prefix,
+        args.project,
         args.template,
         args.folder
     )
@@ -57,7 +58,7 @@ if __name__ == "__main__":
     print('2.1. Running coco inference teacher')
     args.folder = 'test'
     inference_coco.main( # <- coco inference script
-        'yolov8x',
+        'yolov8x6',
         args.csv_path,
         data_names,
         args.template,

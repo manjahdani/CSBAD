@@ -2,6 +2,7 @@ import sys
 import os
 import csv
 import cv2
+import json
 import argparse
 from tabulate import tabulate
 import time
@@ -21,39 +22,63 @@ elif __name__ == 'testing.inference':
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 TMP_DATA_YAML = os.path.join(BASE_PATH, 'data.yaml')
 
-STRATEGIES = ['n_first', 'fixed_interval', 'flow_diff', 'flow_interval_mix', 'random', 'entropy', 'frequency', "confidence_max", "confidence_min"]
+STRATEGIES = ['n_first', 'fixed_interval', 'flow_diff', 'flow_interval_mix', 'random', 'entropy', 'frequency', "confidence_max", "confidence_min", "movement"]
 # METRICS = ['metrics/precision(B)', 'metrics/recall(B)', 'metrics/mAP50(B)', 'metrics/mAP50-95(B)', 'fitness']
 METRICS = ['precision', 'recall', 'mAP50', 'mAP50-95', 'fitness']
 
+def get_runs_summary(weights_path, project, wandb_project_name):
+    summary = os.path.join(os.path.abspath(weights_path), wandb_project_name + '.csv')
+    with open(summary, 'r', encoding = 'utf-8') as f:
+        lines = f.readlines()[1:]
+        # lines = [l.strip().split(',') for l in lines]
+
+    summary_processed = {}
+    for line in lines:
+        try:
+            run_summary = json.loads(line.split('"')[1].replace("'", '"'))
+            run_name = line.strip('\n').split(',')[-1]
+            summary_processed[run_name] = run_summary
+        except Exception as e:
+            print("ERROR, Fix this first --->", line)
+            logging.exception(e) 
+            sys.exit()
+        continue
+
+    return summary_processed
+
+
 def get_weights(weights_path, project):
     weights = os.listdir(weights_path)
-    print(project)
     weights = [os.path.join(os.path.abspath(weights_path), w) for w in weights if w.endswith('.pt') and project in w]
     return weights
 
-def build_run_info(weight, dataset_path, project):
+def build_run_info(weight, dataset_path, project, summary):
     run = weight.split('/')[-1]
+    run_name = run.split('.')[1]
 
     for strategy in STRATEGIES:
         if strategy in run.split(project)[1]:
             break
+    if run_name in summary:
+        # '-'.join(run.split(project)[1].strip('-').split('_')[0].split('-')),
+        return {
+            'id': run.split('.')[0],
+            # 'data-name': run.split(project)[1].strip('-').split('_')[0].split('-')[0],
+            'data-name': '-'.join(run.split(project)[1].strip('-').split('_')[0].split('-')),
+            'strategy': strategy,
+            'epochs': summary[run_name]['_step'],
+            'best/epoch': summary[run_name]['best/epoch'],
+            'samples': int(run.split(project)[1].split(strategy)[1].strip('_').split('.')[0].split('-')[0].split('_')[0]),
+            'data': os.path.join(dataset_path, run.split(project)[1].strip('-').split('_')[0].split('-')[0]), # *run.split(project)[1].strip('-').split('_')[0].split('-')
+        }
 
-    # '-'.join(run.split(project)[1].strip('-').split('_')[0].split('-')),
-    return {
-        'id': run.split('.')[0],
-        # 'data-name': run.split(project)[1].strip('-').split('_')[0].split('-')[0],
-        'data-name': '-'.join(run.split(project)[1].strip('-').split('_')[0].split('-')),
-        'strategy': strategy,
-        'samples': int(run.split(project)[1].split(strategy)[1].strip('_').split('.')[0].split('-')[0].split('_')[0]),
-        'data': os.path.join(dataset_path, run.split(project)[1].strip('-').split('_')[0].split('-')[0]), # *run.split(project)[1].strip('-').split('_')[0].split('-')
-    }
-
-def main(weights_path, csv_path, dataset_path, project, base_data_yaml, task):
+def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base_data_yaml, task):
     weights = get_weights(weights_path, project)
+    summary = get_runs_summary(weights_path, project, wandb_project_name)
 
     runs = []
     for weight in weights:
-        info = build_run_info(weight, dataset_path, project)
+        info = build_run_info(weight, dataset_path, project, summary)
         if info:
             runs += [{**info, 'model': weight}]
         
@@ -64,7 +89,7 @@ def main(weights_path, csv_path, dataset_path, project, base_data_yaml, task):
     if not os.path.isfile(csv_path):
         with open(csv_path, 'w') as f:
             writer = csv.writer(f)
-            writer.writerow(['run_id', 'data-name', 'strategy', 'samples', *METRICS])
+            writer.writerow(['run_id', 'data-name', 'strategy', 'epochs', 'best/epoch', 'samples', *METRICS])
 
     testable = 0
     with open(csv_path, 'r') as f:
@@ -77,7 +102,7 @@ def main(weights_path, csv_path, dataset_path, project, base_data_yaml, task):
                     testable += 1
 
     print(f'Found {len(runs)} runs for project {project} of which {testable} need testing')
-    print(tabulate([r.values() for r in runs], headers=['RUN-ID', 'DATA-SHORT-NAME', 'STRATEGY', 'SAMPLES', 'DATA', 'MODEL', 'TESTED']))
+    print(tabulate([r.values() for r in runs], headers=['RUN-ID', 'DATA-SHORT-NAME', 'STRATEGY', 'EPOCHS', 'BEST/EPOCH', 'SAMPLES', 'DATA', 'MODEL', 'TESTED']))
     
     # testing
     for i, run in enumerate(runs):
@@ -94,7 +119,7 @@ def main(weights_path, csv_path, dataset_path, project, base_data_yaml, task):
             if len(results) == len(METRICS):
                 with open(csv_path, 'a+') as f:
                     writer = csv.writer(f)
-                    writer.writerow([run['id'], run['data-name'], run['strategy'], run['samples'], *list(results.values())])
+                    writer.writerow([run['id'], run['data-name'], run['strategy'], run['epochs'], run['best/epoch'], run['samples'], *list(results.values())])
             else:
                 print('TESTING ERROR. NOT SAVING !')
 
@@ -136,10 +161,15 @@ if __name__ == "__main__":
                     help='The path to the dataset folder, it should contain each camera in a separated folder')
     ap.add_argument('-p', '--project', type=str, required=True,
                     help='This is not the project name used in wandb, this is the dataset name used as prefix')
+    ap.add_argument('-p', '--wandb_project', type=str, required=False,
+                    help='This is the project name used in wandb')
     ap.add_argument('-y', '--data-template', type=str, required=True,
                     help='Template yaml file for the dataset')
     ap.add_argument('-f', '--folder', type=str, required=False, default='test',
                     help='Set the folder to be used for testing: val or test')
     args = ap.parse_args()
 
-    main(args.weights_path, args.csv_path, args.dataset_path, args.project, args.data_template, args.folder)
+    if not args.wandb_project:
+        args.wandb_project = args.project
+
+    main(args.weights_path, args.csv_path, args.dataset_path, args.project, args.wandb_project, args.data_template, args.folder)

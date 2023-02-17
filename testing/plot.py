@@ -9,7 +9,7 @@ SMALL_SIZE = 6
 MEDIUM_SIZE = 8
 BIGGER_SIZE = 10
 
-MODELS = ['yolov8n', 'yolov8s','yolov8m', 'yolov8l', 'yolov8x']
+MODELS = ['yolov8n', 'yolov8s','yolov8m', 'yolov8l', 'yolov8x6']
 MODELS_COLORS = ['k', 'b','g', 'p', 'r']
 
 STUDENT_TEACHER_CONFIG = ['student', 'teacher', 'teacher', 'teacher', 'teacher']
@@ -20,10 +20,10 @@ font = {'family' : 'serif',
         'weight' : 'bold',
         'size'   : SMALL_SIZE}
 
-ticks_x = [0, 25, 50, 75, 100]
+ticks_x = [0, 250, 500, 750, 1000, 1500] # [0, 25, 50, 75, 100]
 ticks_y = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]
 
-interval_to_show_x = [15, 110]
+interval_to_show_x = [15, 1300] # [15, 150]
 interval_to_show_y = [0.0, 1]
 
 def get_color(label):

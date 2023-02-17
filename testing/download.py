@@ -17,7 +17,7 @@ class Downloader:
     def __init__(self, entity, project):
         self.entity = entity
         self.project = project
-        self.api = wandb.Api()
+        self.api = wandb.Api(timeout=25)
         self.runs_url = f'https://wandb.ai/{entity}/{project}/runs/'
 
 
