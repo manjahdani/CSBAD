@@ -1,0 +1,10 @@
+_target_: strategy.subsampling.strategy_dense_optical_difference
+
+image_folder_path: "${dataset.image_path}"
+imgExtension: "${dataset.extension}"
+val_size: ${val.val_set_size}
+n: ${n_samples}
+movement_percent: 90
+difference_ratio: 4.
+
+name: "movement_${n_samples}"

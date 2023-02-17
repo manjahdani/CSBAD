@@ -6,6 +6,7 @@ from tqdm import tqdm
 from utils import *
 import pandas as pd
 from os.path import exists
+from frequency_utils import *
 # Ignoring numpy warnings
 import warnings
 warnings.filterwarnings('ignore')
@@ -256,14 +257,15 @@ def generate_path_to_frequencies(image_folder_path: str, imgExtension: str):
     os.chdir(image_folder_path)
     dic = {}
     count1 = 0
-    for file in glob.glob("images/*."+imgExtension):
+    for file in glob.glob(os.path.join(image_folder_path, "*."+imgExtension)):
         print(str(count1)+  "- Processing image " + str(file))
-        sumFrequency_original, sumFrequency_removed = Frequency(image_path=outfolder+file)
-        dic[file] = [np.absolute(sumFrequency_original), np.absolute(sumFrequency_removed)]
+        sumFrequency_original, sumFrequency_removed = Frequency(image_path=file)
+        dic[file.replace(imgExtension,"")] = [np.absolute(sumFrequency_original), np.absolute(sumFrequency_removed)]
         count1=count1+1
     sumFrequencyDataset = pd.DataFrame.from_dict(dic, orient='index', columns=['frequency','frequency_filtered'])
-    sumFrequencyDataset.to_csv('frequencies.txt', sep='\t')
-    return (image_folder_path+'frequencies.txt')
+    path_to_store = os.path.join(bank_folder_path, 'frequencies.txt')
+    sumFrequencyDataset.to_csv(path_to_store, sep='\t')
+    return path_to_store
 
 
 def diversify_classes(counts, n:int = DEFAULT_SUB_SAMPLE):
@@ -308,8 +310,8 @@ def strategy_frequency(image_folder_path: str, bank_folder_path : str, imgExtens
     if(exists(os.path.join(bank_folder_path, 'frequencies.txt'))):
         path_to_frequencies = os.path.join(bank_folder_path, 'frequencies.txt')
     else:
-        print('Must generate')
-        #path_to_frequencies = generate_path_to_frequencies(os.path.join(bank_folder_path, 'frequencies.txt'), imgExtension)
+        warning('Must generate the frequencies, the processus takes time')
+        path_to_frequencies = generate_path_to_frequencies(image_folder_path, bank_folder_path, imgExtension)
         
     
     df = pd.read_csv(path_to_frequencies, sep='\t',index_col=0)
