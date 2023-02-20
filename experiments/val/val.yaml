@@ -1,4 +1,4 @@
-parent_folder: "${dataset.data_path}"
+bank_folder: "${dataset.bank_path}"
 extension: "${dataset.extension}"
 labels_folder: "${dataset.label_path}"
 val_set_size: 300

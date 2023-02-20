@@ -69,6 +69,7 @@ if __name__ == "__main__":
 def build_train_folder(config):
     subsample_names = call(config.strategy)
     copy_subsample(subsample_names, **config.subsample)
+    return config.subsample.out_folder
 
 
 
