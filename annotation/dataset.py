@@ -78,5 +78,5 @@ def build_val_folder(bank_folder, labels_folder, extension, val_set_size=300, mi
         os.makedirs(f'{outfolder}/val/labels')
     
     val_folder = outfolder + '/val/'
-    copy_subsample(validationSet, bank_folder, val_folder,imgExtension=extension,labelsFolder=labels_folder)
+    copy_subsample(validationSet, bank_folder, val_folder, imgExtension=extension, labelsFolder=labels_folder)
     return val_folder

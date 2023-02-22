@@ -111,11 +111,10 @@ def strategy_best_entropy(image_folder_path: str,entropy_file :str, imgExtension
 
 
 
-def strategy_random(image_folder_path: str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE, seed: int = 42, **kwargs) -> list:
+def strategy_random(image_folder_path: str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE, **kwargs) -> list:
     """
     :param image_folder_path: path to the bank image folder
     :param n: number of frames to select
-    :param seed: randomization seed for reproducibility
     :return output_list: a list containing the selected images path
     """
     path_list = list_files_without_extensions(image_folder_path, extension=imgExtension)[0:-val_size]
@@ -125,7 +124,6 @@ def strategy_random(image_folder_path: str, imgExtension: str, val_size: int, n:
         raise SamplingException(f'Image bank contains {len(path_list)} frames, but {n} frames where required for the '
                                 f'random strategy !')
     path_list.sort()
-    random.seed(seed)
     output_list = random.sample(path_list, n)
     output_list.sort()
     return output_list
