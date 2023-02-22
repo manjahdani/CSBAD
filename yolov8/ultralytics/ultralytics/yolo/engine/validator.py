@@ -38,7 +38,7 @@ class BaseValidator:
         save_dir (Path): Directory to save results.
     """
 
-    def __init__(self, dataloader=None, save_dir=None, pbar=None, logger=None, args=None):
+    def __init__(self, dataloader=None, save_dir=None, pbar=None, logger=None, args=None, task=None):
         """
         Initializes a BaseValidator instance.
 
@@ -60,6 +60,7 @@ class BaseValidator:
         self.training = True
         self.speed = None
         self.jdict = None
+        self.task = task
 
         project = self.args.project or Path(SETTINGS['runs_dir']) / self.args.task
         name = self.args.name or f"{self.args.mode}"
@@ -115,8 +116,13 @@ class BaseValidator:
 
             if self.device.type == 'cpu':
                 self.args.workers = 0  # faster CPU val as time dominated by inference, not dataloading
-            self.dataloader = self.dataloader or \
-                              self.get_dataloader(self.data.get("val") or self.data.set("test"), self.args.batch)
+
+            if self.task:
+                self.dataloader = self.get_dataloader(self.data.get(self.task), self.args.batch)
+            else:
+                self.dataloader = self.dataloader or \
+                                self.get_dataloader(self.data.get("val") or self.data.set("test"), self.args.batch)
+
 
             model.eval()
             model.warmup(imgsz=(1 if pt else self.args.batch, 3, imgsz, imgsz))  # warmup

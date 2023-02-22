@@ -66,15 +66,17 @@ def build_train_val_folders(video_path, output_parent_folder, item_name='frame',
 #New function to build the validation set 
 #The validation set is composed of the 300 last frames of the bank
 #The input is the bank set
-def build_val_folder(parent_folder, extension, labels_folder, val_set_size=300, min_n_frame=500):
-    if not os.path.exists(f'{parent_folder}/val'):
-        os.makedirs(f'{parent_folder}/val')
-    if not os.path.exists(f'{parent_folder}/val/images'):
-        os.makedirs(f'{parent_folder}/val/images')
-    if not os.path.exists(f'{parent_folder}/val/labels'):
-        os.makedirs(f'{parent_folder}/val/labels')
-    
-    bank_folder = parent_folder + '/bank'
+def build_val_folder(bank_folder, labels_folder, extension, val_set_size=300, min_n_frame=500):
     validationSet = list_files_without_extensions(bank_folder +'/images', extension=extension)[-val_set_size::]
-    val_folder = parent_folder + '/val/'
-    copy_subsample(validationSet, bank_folder, val_folder,imgExtension=extension,labelsFolder=labels_folder)
+
+    outfolder = os.getcwd()
+    if not os.path.exists(f'{outfolder}/val'):
+        os.makedirs(f'{outfolder}/val')
+    if not os.path.exists(f'{outfolder}/val/images'):
+        os.makedirs(f'{outfolder}/val/images')
+    if not os.path.exists(f'{outfolder}/val/labels'):
+        os.makedirs(f'{outfolder}/val/labels')
+    
+    val_folder = outfolder + '/val/'
+    copy_subsample(validationSet, bank_folder, val_folder, imgExtension=extension, labelsFolder=labels_folder)
+    return val_folder

@@ -143,7 +143,7 @@ class YOLO:
         return self.predictor(source=source, stream=stream, verbose=verbose)
 
     @smart_inference_mode()
-    def val(self, data=None, **kwargs):
+    def val(self, data=None, task=None, **kwargs):
         """
         Validate a model on a given dataset .
 
@@ -158,8 +158,8 @@ class YOLO:
         args.data = data or args.data
         args.task = self.task
 
-        validator = self.ValidatorClass(args=args)
-        validator(model=self.model)
+        validator = self.ValidatorClass(args=args,task=task)
+        return validator(model=self.model)
 
     @smart_inference_mode()
     def export(self, **kwargs):

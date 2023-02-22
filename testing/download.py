@@ -8,14 +8,16 @@ import argparse
 import wandb
 from tabulate import tabulate
 
+import pandas as pd 
 
-DEFAULT_DOWNLOAD_DIR = './models'
+BASE_PATH = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_DOWNLOAD_DIR = os.path.join(BASE_PATH, 'models')
 
 class Downloader:
     def __init__(self, entity, project):
         self.entity = entity
         self.project = project
-        self.api = wandb.Api()
+        self.api = wandb.Api(timeout=25)
         self.runs_url = f'https://wandb.ai/{entity}/{project}/runs/'
 
 
@@ -34,7 +36,7 @@ class Downloader:
             if run.id in runs:
                 runs[runs.index(run.id)] = run
             if run.name in runs:
-                runs[runs.index(run.name)] = run 
+                runs[runs.index(run.name)] = run
 
         runs_found = []
         for run in runs:
@@ -50,16 +52,40 @@ class Downloader:
         if os.path.exists(download_location):
             print(f"Skipping : '{run.id}.{run.name}.pt' already exists")
         else:
-            model_artifact = self.api.artifact(f'{self.entity}/{self.project}/run_{run.id}_model:best')
-            model_artifact.download(download_dir)
-            if os.path.exists(os.path.join(download_dir, 'best.pt')):
-                os.rename(os.path.join(download_dir, 'best.pt'), download_location)
-            else:
-                print('Skipping : Could not download.',end='\n\n')
+            try:
+                model_artifact = self.api.artifact(f'{self.entity}/{self.project}/run_{run.id}_model:best')
+                model_artifact.download(download_dir)
+                if os.path.exists(os.path.join(download_dir, 'best.pt')):
+                    os.rename(os.path.join(download_dir, 'best.pt'), download_location)
+                else:
+                    print('Skipping : Could not download.',end='\n\n')
+            except Exception as e:
+                print(f'Could not download {run} :', e)
+
+
+    def save_summary(self, runs, download_dir = DEFAULT_DOWNLOAD_DIR, project = 'results'):
+        summary_list, config_list, name_list = [], [], []
+        for run in runs: 
+            summary_list.append(run.summary._json_dict)
+            config_list.append(
+                {k: v for k,v in run.config.items()
+                if not k.startswith('_')})
+            
+            name_list.append(run.name)
+
+        runs_df = pd.DataFrame({
+            "summary": summary_list,
+            "config": config_list,
+            "name": name_list
+            })
+
+        print('Saving WANDB summary to:', os.path.join(download_dir, f'{project}.csv'))
+        runs_df.to_csv(os.path.join(download_dir, f'{project}.csv'))
+
 
 
 def main(args):
-    d = Downloader('trail22kd', 'kd')
+    d = Downloader(args.entity, args.project)
     finished, running, other = d.get_runs()
 
     runs_to_process = []
@@ -104,6 +130,12 @@ def main(args):
             print(f'Downloading : {run.id}.{run.name}.pt')
             d.download_model(run, args.folder)
 
+    try:
+        print('Saving Runs summary !')
+        d.save_summary(runs_to_process, args.folder, args.project)
+    except Exception as e:
+        print('Could not save summary:', e)
+
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
@@ -114,7 +146,12 @@ if __name__ == "__main__":
     ap.add_argument('-s', '--sort', action = 'store_true', required = False, default = False, help='sort listed')
     ap.add_argument('-f', '--folder', type = str, required = False, default = './models', help='Folder to download & check for local runs. use with one of the listing arguments to download')
     ap.add_argument('-d', '--download', action = 'store_true', required = False, default = False, help='Download listed models')
+    ap.add_argument('-e', '--entity', type = str, required = True, help='Wandb Entity')
+    ap.add_argument('-p', '--project', type = str, required = True, help='Wandb Project')
     args = ap.parse_args()
+
+    if args.folder:
+        args.folder = os.path.abspath(args.folder)
 
     if len(sys.argv) < 2:
         ap.print_help()
