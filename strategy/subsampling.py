@@ -37,6 +37,55 @@ def uniform_stream_based(image_labels_path: str,  n: int = 10, sampling_rate: fl
     output_list = [path_list[i] for i in range(len(path_list)) if rand_array[i] >= (1-sampling_rate)]
     return output_list[:n]
 
+  
+def thresholding_object_count(image_labels_path: str, n: int = DEFAULT_SUB_SAMPLE, warmup_length=750,
+                              sampling_rate=0.05, **kwargs) -> list:
+    """
+    Performs active learning for object detection using the object count.
+
+    Parameters:
+    - image_labels_path: paths to the .txt files with the object detections (last element of each line = confidence score).
+    - n: number of images to label.
+    - aggregation_function: how to compute the confidence of an image based on the number of objects detected:
+        a) "max": the confidence of an image is given by the maximum number of objects detected in a single image.
+        b) "min": the confidence of an image is given by the minimum number of objects detected in a single image.
+        c) "mean": the confidence of an image is given by the average number of objects detected across all images.
+        d) "sum": the confidence of an image is given by the sum of the number of objects detected across all images.
+
+    Returns:
+    - images_to_label: list of strings, paths to the .txt files with the images to be labeled
+    """
+    txt_files = [filename for filename in os.listdir(image_labels_path)]
+    if n <= 0:
+        raise SamplingException(f'You must select a strictly positive number of frames to select')
+    if n > len(txt_files):
+        raise SamplingException(f'Image bank contains {len(txt_files)} frames, but {n} frames where required for the '
+                                f'least confidence strategy !')
+    object_counts = []
+    for txt_file in txt_files:
+        with open(os.path.join(image_labels_path, txt_file), 'r') as f:
+            lines = f.readlines()
+            if lines:
+                # If the file is not empty, compute the object count
+                object_count = len(lines)
+                object_counts.append((txt_file, object_count))
+
+    # Get the warm-up set
+    warmup_set = object_counts[:warmup_length]
+
+    # Compute the threshold
+    threshold = np.percentile([count for _, count in warmup_set], 100 * (1 - sampling_rate))
+
+
+    # Filtering images based on the object count
+    top_count_images = [(img, count) for img, count in object_counts[warmup_length:] if count > threshold]
+
+    # Get N-first images with an object count above the threshold
+    images_to_label = [os.path.splitext(img)[0] for img, _ in top_count_images[:n]]
+
+    return images_to_label
+
+  
 def thresholding_least_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPLE, aggregation_function: str = "min",
                                   warmup_length=750, sampling_rate=0.05, **kwargs) -> list:
     """
