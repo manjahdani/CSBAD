@@ -10,3 +10,4 @@ opencv-python==4.5.5.64
 wandb==0.12.11
 tabulate==0.8.9
 hydra-core
+scikit-image

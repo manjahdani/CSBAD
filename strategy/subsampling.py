@@ -81,6 +81,7 @@ def strategy_top_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPLE,
     Returns:
     - images_to_label: list of strings, names of the images to be labeled (without extension)
     """
+    print(aggregation_function)
     txt_files = [filename for filename in os.listdir(image_labels_path)]
     if n <= 0:
         raise SamplingException(f'You must select a strictly positive number of frames to select')
@@ -89,7 +90,7 @@ def strategy_top_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPLE,
                                 f'least confidence strategy !')
     confidences = []
     for txt_file in txt_files:
-        with open(image_labels_path+txt_file, 'r') as f:
+        with open(os.path.join(image_labels_path, txt_file), 'r') as f:
             lines = f.readlines()
             if lines:
                 # If the file is not empty, compute the image confidence score
