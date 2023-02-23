@@ -1,7 +1,4 @@
-subsample:
-  in_folder: "${dataset.bank_path}"
-  out_folder: "${dataset.train_path}"
-  imgExtension: "${dataset.extension}"
-  labelsFolder: "${dataset.label_path}"
-
-strategy: "${strategy}"
+images_folder: "${dataset.image_path}"
+labels_folder: "${dataset.label_path}"
+img_extension: "${dataset.extension}"
+cfg_strategy: "${strategy}"

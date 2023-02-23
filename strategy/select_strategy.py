@@ -1,6 +1,6 @@
 import argparse
 import os
-from subsampling import *
+from strategies import *
 from utils import copy_subsample
 from hydra.utils import call
 

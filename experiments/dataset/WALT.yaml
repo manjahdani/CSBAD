@@ -1,5 +1,4 @@
 data_path: "${path_walt}/cam${cam_walt}/week${week_walt}"
-train_path: "train"
 bank_path: "${dataset.data_path}/bank"
 image_path: "${dataset.bank_path}/images"
 label_path: "${dataset.bank_path}/labels"

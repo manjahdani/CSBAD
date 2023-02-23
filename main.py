@@ -8,8 +8,7 @@ import shutil
 import random
 import numpy as np
 
-from annotation.dataset import build_val_folder
-from strategy.select_strategy import build_train_folder
+from strategy.subsample import build_val_folder, build_train_folder
 
 sys.path.append(os.path.join(sys.path[0], "yolov8", "ultralytics"))
 from ultralytics import YOLO
@@ -27,31 +26,35 @@ def set_random(seed):
 def main(config):
     set_random(config.seed)
 
-    # generate validation folder
-    val_folder = build_val_folder(**config.val)
-
-    # generate train folder
-    train_folder = build_train_folder(config.train)
-
-    # update data files
-    update_config_file(config)
-
-    # init model
-    model = YOLO(config.model.weights, cmd_args=config.model)
-    model.train(
-        data="data.yaml", epochs=config.model.epochs, batch=config.model.batch
-    )
-    wandb.finish()
-    shutil.rmtree(val_folder, ignore_errors=True)
-    shutil.rmtree(train_folder, ignore_errors=True)
+    make_training(config)
 
 
-def update_config_file(config):
-    with open(config.model.data, mode="r") as f:
+def update_config_file(data_file_path):
+    with open(data_file_path, mode="r") as f:
         data = yaml.load(f, Loader=yaml.FullLoader)
     data["path"] = os.getcwd()
     with open("data.yaml" , mode="w") as f:
         yaml.dump(data, f)
+    
+def make_training(sub_config):
+
+    # generate validation folder
+    val_folder = build_val_folder(**sub_config.val)
+
+    # generate train folder
+    train_folder = build_train_folder(**sub_config.train)
+
+    # update data files
+    update_config_file(sub_config.model.data)
+
+    # init model
+    model = YOLO(sub_config.model.weights, cmd_args=sub_config.model)
+    model.train(
+        data="data.yaml", epochs=sub_config.model.epochs, batch=sub_config.model.batch
+    )
+    wandb.finish()
+    shutil.rmtree(val_folder, ignore_errors=True)
+    shutil.rmtree(train_folder, ignore_errors=True)
 
 if __name__ == "__main__":
     main()

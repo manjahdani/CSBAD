@@ -1,5 +1,4 @@
-bank_folder: "${dataset.bank_path}"
-extension: "${dataset.extension}"
+images_folder: "${dataset.image_path}"
 labels_folder: "${dataset.label_path}"
+img_extension: "${dataset.extension}"
 val_set_size: 300
-min_n_frame: 500
