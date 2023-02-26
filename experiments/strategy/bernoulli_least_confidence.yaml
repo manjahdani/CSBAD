@@ -5,4 +5,4 @@ n: ${n_samples}
 aggregation_function: "max"
 b_sampling: 0.04
 seed: 0
-name: "bernoulli_leastconfidence-streambased_${strategy.aggregation_function}_${n_samples}"
+name: "bernoulliLeastconfidenceStreambased_${strategy.aggregation_function}_${n_samples}"
