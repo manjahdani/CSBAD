@@ -22,10 +22,10 @@ elif __name__ == 'testing.inference':
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 TMP_DATA_YAML = os.path.join(BASE_PATH, 'data.yaml')
 
-STRATEGIES = ['n_first', 'fixed_interval', 'flow_diff', 'flow_interval_mix', 'random', 'entropy', 'frequency', 
-               "confidence_max", "confidence_min", "topconfidence_max","topconfidence_sum","movement",
+STRATEGIES = ['n_first', 'fixed_interval', 'flow_diff', 'flow_interval_mix', 'random', 'entropy', 'frequency',
+                "topconfidence_max","topconfidence_sum","movement",
                "uniformStreambased","threshTopconfidenceStreambased_sum",
-               "bernoulliLeastconfidenceStreambased_max","bernoulliTopconfidenceStreambased_max"]
+               "bernoulliLeastconfidenceStreambased_max","bernoulliTopconfidenceStreambased_max","confidence_max", "confidence_min"]
 # METRICS = ['metrics/precision(B)', 'metrics/recall(B)', 'metrics/mAP50(B)', 'metrics/mAP50-95(B)', 'fitness']
 METRICS = ['precision', 'recall', 'mAP50', 'mAP50-95', 'fitness']
 
@@ -60,7 +60,7 @@ def build_run_info(weight, dataset_path, project, summary):
     run_name = run.split('.')[1]
 
     for strategy in STRATEGIES:
-        if 'yolov8_' + strategy in run.split(project)[1]:
+        if strategy in run.split(project)[1]:
             break
     if run_name in summary:
         # '-'.join(run.split(project)[1].strip('-').split('_')[0].split('-')),
