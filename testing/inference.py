@@ -60,7 +60,7 @@ def build_run_info(weight, dataset_path, project, summary):
     run_name = run.split('.')[1]
 
     for strategy in STRATEGIES:
-        if strategy in run.split(project)[1]:
+        if 'yolov8_' + strategy in run.split(project)[1]:
             break
     if run_name in summary:
         # '-'.join(run.split(project)[1].strip('-').split('_')[0].split('-')),
