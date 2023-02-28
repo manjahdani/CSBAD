@@ -35,7 +35,7 @@ def main(model, csv_path, datasets, base_data_yaml, task):
     if not os.path.isfile(csv_path):
         with open(csv_path, 'w') as f:
             writer = csv.writer(f)
-            writer.writerow(['run_id', 'data-name', 'strategy', 'samples', *METRICS])
+            writer.writerow(['run_id', 'data-name', 'strategy', 'epochs', 'best/epoch', 'samples', *METRICS])
 
     testable = 0
     with open(csv_path, 'r') as f:
@@ -71,7 +71,7 @@ def main(model, csv_path, datasets, base_data_yaml, task):
             if len(results) == len(METRICS):
                 with open(csv_path, 'a+') as f:
                     writer = csv.writer(f)
-                    writer.writerow(['cocoyolo', run['data-name'], run['model'], 0, *list(results.values())])
+                    writer.writerow(['cocoyolo', run['data-name'], run['model'],0, 0, 0, *list(results.values())])
             else:
                 print('TESTING ERROR. NOT SAVING !')
 
