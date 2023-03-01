@@ -23,9 +23,11 @@ BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 TMP_DATA_YAML = os.path.join(BASE_PATH, 'data.yaml')
 
 STRATEGIES = ['n_first', 'fixed_interval', 'flow_diff', 'flow_interval_mix', 'random', 'entropy', 'frequency',
-                "topconfidence_max","topconfidence_sum","movement",
-               "uniformStreambased","threshTopconfidenceStreambased_sum",
-               "bernoulliLeastconfidenceStreambased_max","bernoulliTopconfidenceStreambased_max","confidence_max", "confidence_min"]
+               "topconfidence_max","topconfidence_sum","movement",
+               "uniformStreambased", #Random stream-based
+               "threshTopconfidenceStreambased_sum", "threshTopconfidenceStreambased_max", "threshLeastconfidenceStreambased_max", #stream-based
+               "bernoulliLeastconfidenceStreambased_max","bernoulliTopconfidenceStreambased_max",
+               "confidence_max", "confidence_min"]
 # METRICS = ['metrics/precision(B)', 'metrics/recall(B)', 'metrics/mAP50(B)', 'metrics/mAP50-95(B)', 'fitness']
 METRICS = ['precision', 'recall', 'mAP50', 'mAP50-95', 'fitness']
 
