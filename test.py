@@ -15,6 +15,8 @@ if __name__ == "__main__":
     ap.add_argument('-p', '--project', type=str, required=True)
     ap.add_argument('-t', '--template', type=str, required=True)
     ap.add_argument('-d', '--dataset_path', type=str, required=True)
+    ap.add_argument('-w', '--wandb-download', type=bool, required=False, default=True)
+    ap.add_argument('-q', '--query_filter', type=str, required=False, default=None)
 
     # not important. added to avoid errors in other used scripts
     ap.add_argument('-r', '--runs', nargs='+', required=False)
@@ -23,13 +25,16 @@ if __name__ == "__main__":
     args = ap.parse_args()
 
     ##################################################################
-    print('1. Running download script')
-    args.folder = os.path.join(DEFAULT_PROJECT_DIR, args.project, 'wandb')
-    args.list_all = False
-    args.list_finished = True
-    args.download = True
+    if args.wandb_download:
+        print('1. Running download script')
+        args.folder = os.path.join(DEFAULT_PROJECT_DIR, args.project, 'wandb')
+        args.list_all = False
+        args.list_finished = True
+        args.download = True
 
-    download.main(args) # <- download script
+        download.main(args) # <- download script
+    else:
+        print('1. Skipping download script')
 
     ##################################################################
     print('2. Running inference')

@@ -7,6 +7,7 @@ import sys
 import argparse
 import wandb
 from tabulate import tabulate
+from tqdm import tqdm
 
 import pandas as pd 
 
@@ -21,17 +22,34 @@ class Downloader:
         self.runs_url = f'https://wandb.ai/{entity}/{project}/runs/'
 
 
-    def get_runs(self):
-        runs = self.api.runs(f"{self.entity}/{self.project}")
-        finished = [run for run in runs if run.state == 'finished']
-        running = [run for run in runs if run.state == 'running']
-        other = [run for run in runs if run.state not in ['finished', 'running']]
+    def get_runs(self, query_filter = None):
+        finished, running, other = [], [], []
+
+        print("Loading Runs DB...")
+        if query_filter:
+            finished_query = self.api.runs(f"{self.entity}/{self.project}", {
+                "display_name": {"$regex": f".*{query_filter}.*"}
+            }, per_page = 4)
+        else:
+            finished_query = self.api.runs(f"{self.entity}/{self.project}", per_page = 4)
+        finished_query[0]
+        l = finished_query.length
+        
+        print("Loading Runs to memory...")
+        for i in tqdm(range(l)):
+            run = finished_query[i]
+            if run.state == 'finished':
+                finished += [run]
+            elif run.state == 'running':
+                running += [run]
+            else:
+                other += [run]
         return finished, running, other
 
 
-    def check_runs(self, runs):
+    def check_runs(self, runs, query_filter):
         print('Checking list of finished runs...')
-        finished, running, other = self.get_runs()
+        finished, running, other = self.get_runs(query_filter)
         for run in finished:
             if run.id in runs:
                 runs[runs.index(run.id)] = run
@@ -86,11 +104,11 @@ class Downloader:
 
 def main(args):
     d = Downloader(args.entity, args.project)
-    finished, running, other = d.get_runs()
+    finished, running, other = d.get_runs(args.query_filter)
 
     runs_to_process = []
     if args.runs:
-        runs = d.check_runs(args.runs)
+        runs = d.check_runs(args.runs, args.query_filter)
         runs_to_process = runs
     elif args.list_all:
         for run in finished + running + other:
@@ -148,6 +166,7 @@ if __name__ == "__main__":
     ap.add_argument('-d', '--download', action = 'store_true', required = False, default = False, help='Download listed models')
     ap.add_argument('-e', '--entity', type = str, required = True, help='Wandb Entity')
     ap.add_argument('-p', '--project', type = str, required = True, help='Wandb Project')
+    ap.add_argument('-q', '--query_filter', type = str, required = False, default = None, help='Filter by strings in run names')
     args = ap.parse_args()
 
     if args.folder:
