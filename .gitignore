@@ -161,6 +161,7 @@ cython_debug/
 .vscode/
 
 yolov5/
+yolov8/
 runs/
 multirun/
 outputs/

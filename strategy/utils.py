@@ -18,6 +18,7 @@ def copy_subsample(index,in_folder,out_folder,imgExtension,labelsFolder):
 
     Create a new directory that copies all the images and the labels following the index in a new folder 
     """
+    print(labelsFolder)
     files = glob.glob(f'{out_folder}/*/*')
     if(len(files)>0):
         warning("Train folder was flushed. All files were removed")
@@ -37,6 +38,8 @@ def copy_subsample(index,in_folder,out_folder,imgExtension,labelsFolder):
         assert(img_with_label in labels),'Source folder does not contain a file - ' + img_with_label
         shutil.copy(os.path.join(in_folder,"images",img_with_extension),os.path.join(out_folder,"images",img_with_extension))
         shutil.copy(os.path.join(in_folder,labelsFolder,img_with_label),os.path.join(out_folder,"labels",img_with_label))
+
+
 
 
 def create_log_file(folder_path,name,frames_list):
