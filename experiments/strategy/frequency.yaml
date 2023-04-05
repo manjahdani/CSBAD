@@ -1,9 +1,0 @@
-_target_: strategy.subsampling.strategy_frequency
-
-image_folder_path: "${dataset.image_path}"
-bank_folder_path: "${dataset.bank_path}"
-imgExtension: "${dataset.extension}"
-n_groups: 10
-n: ${n_samples}
-
-name: "frequency_${n_samples}"

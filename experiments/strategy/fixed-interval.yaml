@@ -1,8 +1,0 @@
-_target_: strategy.subsampling.strategy_fixed_interval
-
-image_folder_path: "${dataset.image_path}"
-imgExtension: "${dataset.extension}"
-val_size: ${val.val_set_size}
-n: ${n_samples}
-
-name: "fixed-interval_${n_samples}"

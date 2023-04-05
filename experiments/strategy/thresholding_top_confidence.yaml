@@ -1,8 +1,0 @@
-_target_: strategy.subsampling.thresholding_top_confidence
-
-image_labels_path: "${dataset.bank_path}/labels_yolov8n_w_conf"
-n: ${n_samples}
-aggregation_function: "sum"
-sampling_rate: 0.10
-warmup_length: 720
-name: "threshTopconfidenceStreambased_${strategy.aggregation_function}_${n_samples}"

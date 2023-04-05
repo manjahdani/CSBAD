@@ -9,17 +9,30 @@ from ultralytics import YOLO
 
 
 parser = argparse.ArgumentParser()
-parser.add_argument("--parent", type=str, required=True, help="Path to the parent dir")
+parser.add_argument(
+    "--folder", type=str, required=True, help="Path to the folder directory"
+)
 parser.add_argument(
     "--extension",
     type=str,
-    required=True,
-    help="Image extension. Default is png",
+    default="jpg",
+    help="Image extension. Default is 'jpg'",
+)
+parser.add_argument(
+    "--model-name",
+    type=str,
+    default="yolov8x6",
+    help="Model used to generate the pseudo labels. Default is 'yolov8x6'",
+)
+parser.add_argument(
+    "--output-conf",
+    action="store_true",
+    default=False,
+    help="Output confidences. Default is False",
 )
 args = parser.parse_args()
 
-# vehicles
-"""
+""" Vehicles in COCO dataset (80 classes)
 1: bicycle
 2: car
 3: motorcycle
@@ -32,16 +45,15 @@ args = parser.parse_args()
 vehicules = [2, 5, 7]
 
 # model
-model_name = "yolov8x6"
-model = YOLO(f"{model_name}.pt", type="v8")
+model = YOLO(f"{args.model_name}.pt", type="v8")
 
 # images
-img_dir = f"{args.parent}/images"
+img_dir = f"{args.folder}/images"
 imgs = sorted(glob.glob(os.path.join(img_dir, f"*.{args.extension}")))
 
 # labels
-lbl_dir = f"{args.parent}/labels"
-os.makedirs(lbl_dir, exist_ok=True)
+labels_dir = f"{args.folder}/labels_{args.model_name}"
+os.makedirs(labels_dir, exist_ok=True)
 
 # inference
 for i in tqdm(range(len(imgs))):
@@ -49,9 +61,13 @@ for i in tqdm(range(len(imgs))):
     results = model.predict(source=imgs[i], verbose=False)
     boxes = results[0].boxes.xywhn
     classes = results[0].boxes.cls
+    confs = results[0].boxes.conf
     str = ""
-    for cls, box in zip(classes, boxes):
+    for cls, box, conf in zip(classes, boxes, confs):
         if cls in vehicules:
-            str += f"0 {box[0]} {box[1]} {box[2]} {box[3]}\n"
-    with open(os.path.join(lbl_dir, f"{img_name}.txt"), mode="w") as f:
+            if not args.output_conf:
+                str += f"0 {box[0]} {box[1]} {box[2]} {box[3]}\n"
+            else:
+                str += f"0 {box[0]} {box[1]} {box[2]} {box[3]} {conf}\n"
+    with open(os.path.join(labels_dir, f"{img_name}.txt"), mode="w") as f:
         f.write(str)

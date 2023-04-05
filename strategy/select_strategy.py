@@ -1,7 +1,7 @@
 import argparse
 import os
-from subsampling import *
-from utils import copy_subsample
+from .subsampling import *
+from .utils import copy_subsample
 from hydra.utils import call
 
 

@@ -1,6 +1,6 @@
 from operator import sub
 import os, os.path
-from subsampling import *
+from .subsampling import *
 import argparse
 
 def simulate_log_files (folder_path, strat_name, n_start, n_max, step):
