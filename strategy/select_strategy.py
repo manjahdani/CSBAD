@@ -62,7 +62,7 @@ if __name__ == "__main__":
         if (a != 'folder_path' and a != 'entropy_file'):
             name_file = name_file + a + '-' + str(vars(args)[a]) + '-'
 
-    create_log_file(str(args.folder_path), name_file, subsample_names)
+    #create_log_file(str(args.folder_path), name_file, subsample_names)
     copy_subsample(subsample_names, bank_folder, train_folder,imgExtension=args.img_extension,labelsFolder=args.labels_folder)
 
 

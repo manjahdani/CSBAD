@@ -164,6 +164,7 @@ cython_debug/
 *.pt
 
 yolov5/
+yolov8/
 runs/
 multirun/
 outputs/

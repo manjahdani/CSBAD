@@ -6,12 +6,323 @@ from tqdm import tqdm
 from .utils import *
 import pandas as pd
 from os.path import exists
-from .frequency_utils import *
+import pathlib
+from frequency_utils import *
 # Ignoring numpy warnings
 import warnings
+from frequency_utils import *
 warnings.filterwarnings('ignore')
 
 DEFAULT_SUB_SAMPLE = 300
+
+def uniform_stream_based(image_labels_path: str,  n: int = 10, sampling_rate: float = 0.005, seed: int = 0,
+                         **kwargs) -> list:
+    """
+    Simulating a scenario where at each time-step we draw a number from a uniform distribution bounded in [0, 1].
+    Should be less spread out than randomly drawing from a pool.
+    :param image_folder_path: path to the bank image folder
+    :param n: number of frames to select
+    :param sampling_rate: probability of selecting each frame
+    :param seed: seed for the random number generator
+    :return output_list: a list containing the selected images path
+    """
+    if n <= 0:
+        raise SamplingException(f'You must select a strictly positive number of frames to select')
+
+    path_list = [os.path.splitext(filename)[0] for filename in os.listdir(image_labels_path)]
+    if n > len(path_list):
+        raise SamplingException(f'Image bank contains {len(path_list)} frames, but {n} frames where required for the '
+                                f'random strategy !')
+    path_list.sort()
+    np.random.seed(seed)
+    rand_array = np.random.uniform(0, 1, len(path_list))
+    output_list = [path_list[i] for i in range(len(path_list)) if rand_array[i] >= (1-sampling_rate)]
+    return output_list[:n]
+
+  
+def thresholding_object_count(image_labels_path: str, n: int = DEFAULT_SUB_SAMPLE, warmup_length=750,
+                              sampling_rate=0.05, **kwargs) -> list:
+    """
+    Performs active learning for object detection using the object count.
+
+    Parameters:
+    - image_labels_path: paths to the .txt files with the object detections (last element of each line = confidence score).
+    - n: number of images to label.
+    - aggregation_function: how to compute the confidence of an image based on the number of objects detected:
+        a) "max": the confidence of an image is given by the maximum number of objects detected in a single image.
+        b) "min": the confidence of an image is given by the minimum number of objects detected in a single image.
+        c) "mean": the confidence of an image is given by the average number of objects detected across all images.
+        d) "sum": the confidence of an image is given by the sum of the number of objects detected across all images.
+
+    Returns:
+    - images_to_label: list of strings, paths to the .txt files with the images to be labeled
+    """
+    txt_files = [filename for filename in os.listdir(image_labels_path)]
+    if n <= 0:
+        raise SamplingException(f'You must select a strictly positive number of frames to select')
+    if n > len(txt_files):
+        raise SamplingException(f'Image bank contains {len(txt_files)} frames, but {n} frames where required for the '
+                                f'least confidence strategy !')
+    object_counts = []
+    for txt_file in txt_files:
+        with open(os.path.join(image_labels_path, txt_file), 'r') as f:
+            lines = f.readlines()
+            if lines:
+                # If the file is not empty, compute the object count
+                object_count = len(lines)
+                object_counts.append((txt_file, object_count))
+
+    # Get the warm-up set
+    warmup_set = object_counts[:warmup_length]
+
+    # Compute the threshold
+    threshold = np.percentile([count for _, count in warmup_set], 100 * (1 - sampling_rate))
+
+
+    # Filtering images based on the object count
+    top_count_images = [(img, count) for img, count in object_counts[warmup_length:] if count > threshold]
+
+    # Get N-first images with an object count above the threshold
+    images_to_label = [os.path.splitext(img)[0] for img, _ in top_count_images[:n]]
+
+    return images_to_label
+
+  
+def thresholding_least_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPLE, aggregation_function: str = "min",
+                                  warmup_length=750, sampling_rate=0.05, **kwargs) -> list:
+    """
+    Performs active learning for object detection using the confidence scores.
+
+    Parameters:
+    - image_labels_path: paths to the .txt files with the object detections (last element of each line = confidence score).
+    - n: number of images to label.
+    - aggregation_function: how to compute the confidence of an image based on the confidence of the single objects:
+        a) "max": minmax approach, where the confidence of an image is given by the most confidently detected object.
+        b) "min": confidence of the whole image is given by the most difficult object detected.
+        c) "mean": average of all the confidence scores, it is not sensible to the number of objects detected.
+        d) "sum": sensible to the number of objects detected.
+
+    Returns:
+    - images_to_label: list of strings, paths to the .txt files with the images to be labeled
+    """
+    txt_files = [filename for filename in os.listdir(image_labels_path)]
+    if n <= 0:
+        raise SamplingException(f'You must select a strictly positive number of frames to select')
+    if n > len(txt_files):
+        raise SamplingException(f'Image bank contains {len(txt_files)} frames, but {n} frames where required for the '
+                                f'least confidence strategy !')
+    confidences = []
+    for txt_file in txt_files:
+        with open(os.path.join(image_labels_path, txt_file), 'r') as f:
+            lines = f.readlines()
+            if lines:
+                # If the file is not empty, compute the image confidence score
+                if aggregation_function == 'max':
+                    image_confidence = max([float(line.strip().split()[-1]) for line in lines])
+                elif aggregation_function == 'min':
+                    image_confidence = min([float(line.strip().split()[-1]) for line in lines])
+                elif aggregation_function == 'mean':
+                    object_confidences_scores = [float(line.strip().split()[-1]) for line in lines]
+                    image_confidence = sum(object_confidences_scores) / len(object_confidences_scores)
+                elif aggregation_function == 'sum':
+                    object_confidences_scores = [float(line.strip().split()[-1]) for line in lines]
+                    image_confidence = sum(object_confidences_scores)
+                else:
+                    raise SamplingException(f'You must select a valid aggregation function')
+                confidences.append((txt_file, image_confidence))
+
+    # Get the warm-up set
+    warmup_set = confidences[:warmup_length]
+
+    # Compute the threshold
+    threshold = np.percentile([conf for _, conf in warmup_set], 100*sampling_rate)
+
+    # Filtering images based on the confidence scores
+    low_confidence_images = [(img, conf) for img, conf in confidences[warmup_length:] if conf < threshold]
+
+    # Get N-first images with a confidence lower than the threshold
+    images_to_label = [os.path.splitext(img)[0] for img, _ in low_confidence_images[:n]]
+
+    return images_to_label
+
+
+def thresholding_top_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPLE, aggregation_function: str = "min",
+                                warmup_length=750, sampling_rate=0.05, **kwargs) -> list:
+    """
+    Performs active learning for object detection using the confidence scores.
+
+    Parameters:
+    - image_labels_path: paths to the .txt files with the object detections (last element of each line = confidence score).
+    - n: number of images to label.
+    - aggregation_function: how to compute the confidence of an image based on the confidence of the single objects:
+        a) "max": minmax approach, where the confidence of an image is given by the most confidently detected object.
+        b) "min": confidence of the whole image is given by the most difficult object detected.
+        c) "mean": average of all the confidence scores, it is not sensible to the number of objects detected.
+        d) "sum": sensible to the number of objects detected.
+
+    Returns:
+    - images_to_label: list of strings, paths to the .txt files with the images to be labeled
+    """
+    txt_files = [filename for filename in os.listdir(image_labels_path)]
+    if n <= 0:
+        raise SamplingException(f'You must select a strictly positive number of frames to select')
+    if n > len(txt_files):
+        raise SamplingException(f'Image bank contains {len(txt_files)} frames, but {n} frames where required for the '
+                                f'least confidence strategy !')
+    confidences = []
+    for txt_file in txt_files:
+        with open(os.path.join(image_labels_path, txt_file), 'r') as f:
+            lines = f.readlines()
+            if lines:
+                # If the file is not empty, compute the image confidence score
+                if aggregation_function == 'max':
+                    image_confidence = max([float(line.strip().split()[-1]) for line in lines])
+                elif aggregation_function == 'min':
+                    image_confidence = min([float(line.strip().split()[-1]) for line in lines])
+                elif aggregation_function == 'mean':
+                    object_confidences_scores = [float(line.strip().split()[-1]) for line in lines]
+                    image_confidence = sum(object_confidences_scores) / len(object_confidences_scores)
+                elif aggregation_function == 'sum':
+                    object_confidences_scores = [float(line.strip().split()[-1]) for line in lines]
+                    image_confidence = sum(object_confidences_scores)
+                else:
+                    raise SamplingException(f'You must select a valid aggregation function')
+                confidences.append((txt_file, image_confidence))
+
+    # Get the warm-up set
+    warmup_set = confidences[:warmup_length]
+
+    # Compute the threshold
+    threshold = np.percentile([conf for _, conf in warmup_set], 100 * (1 - sampling_rate))
+
+    # Filtering images based on the confidence scores
+    top_confidence_images = [(img, conf) for img, conf in confidences[warmup_length:] if conf > threshold]
+
+    # Get N-first images with a confidence lower than the threshold
+    images_to_label = [os.path.splitext(img)[0] for img, _ in top_confidence_images[:n]]
+
+    return images_to_label
+
+def bernoulli_least_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPLE, aggregation_function: str = "max",
+                               strategy="logistic", g=8, b=0.1, seed: int = 0, **kwargs) -> list:
+    """
+    Performs active learning for object detection using the confidence scores.
+
+    Parameters:
+    - image_labels_path: paths to the .txt files with the object detections (last element of each line = confidence score).
+    - n: number of images to label.
+    - aggregation_function: how to compute the confidence of an image based on the confidence of the single objects:
+        a) "max": minmax approach, where the confidence of an image is given by the most confidently detected object.
+        b) "min": confidence of the whole image is given by the most difficult object detected.
+        c) "mean": average of all the confidence scores, it is not sensible to the number of objects detected.
+        d) "sum": sensible to the number of objects detected.
+
+    Returns:
+    - images_to_label: list of strings, paths to the .txt files with the images to be labeled
+    """
+    txt_files = [filename for filename in os.listdir(image_labels_path)]
+    if n <= 0:
+        raise SamplingException(f'You must select a strictly positive number of frames to select')
+    if n > len(txt_files):
+        raise SamplingException(f'Image bank contains {len(txt_files)} frames, but {n} frames where required for the '
+                                f'least confidence strategy !')
+    confidences = []
+    for txt_file in txt_files:
+        with open(os.path.join(image_labels_path, txt_file), 'r') as f:
+            lines = f.readlines()
+            if lines:
+                # If the file is not empty, compute the image confidence score
+                if aggregation_function == 'max':
+                    image_confidence = max([float(line.strip().split()[-1]) for line in lines])
+                elif aggregation_function == 'min':
+                    image_confidence = min([float(line.strip().split()[-1]) for line in lines])
+                elif aggregation_function == 'mean':
+                    object_confidences_scores = [float(line.strip().split()[-1]) for line in lines]
+                    image_confidence = sum(object_confidences_scores) / len(object_confidences_scores)
+                elif aggregation_function == 'sum':
+                    object_confidences_scores = [float(line.strip().split()[-1]) for line in lines]
+                    image_confidence = sum(object_confidences_scores)
+                else:
+                    raise SamplingException(f'You must select a valid aggregation function')
+                confidences.append((txt_file, image_confidence))
+
+    # Compute probabilities
+    if strategy == "logistic":
+        probabilities = [np.exp(-g * confidence) for _, confidence in confidences]
+    elif strategy == "b-sampling":
+        probabilities = [b / (b + confidence) for _, confidence in confidences]
+    else:
+        raise SamplingException(f'You must select a valid sampling function')
+
+    # Filtering images based on the Bernoulli draws
+    np.random.seed(seed)
+    low_confidence_images = [(img, conf) for i, (img, conf) in enumerate(confidences) if np.random.binomial(1, probabilities[i])]
+
+    # Get N-first images with a confidence lower than the threshold
+    images_to_label = [os.path.splitext(img)[0] for img, _ in low_confidence_images[:n]]
+
+    return images_to_label
+
+
+def bernoulli_top_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPLE, aggregation_function: str = "max",
+                             strategy="logistic", g=8, b=0.1, seed: int = 0, **kwargs) -> list:
+    """
+    Performs active learning for object detection using the confidence scores.
+
+    Parameters:
+    - image_labels_path: paths to the .txt files with the object detections (last element of each line = confidence score).
+    - n: number of images to label.
+    - aggregation_function: how to compute the confidence of an image based on the confidence of the single objects:
+        a) "max": minmax approach, where the confidence of an image is given by the most confidently detected object.
+        b) "min": confidence of the whole image is given by the most difficult object detected.
+        c) "mean": average of all the confidence scores, it is not sensible to the number of objects detected.
+        d) "sum": sensible to the number of objects detected.
+
+    Returns:
+    - images_to_label: list of strings, paths to the .txt files with the images to be labeled
+    """
+    txt_files = [filename for filename in os.listdir(image_labels_path)]
+    if n <= 0:
+        raise SamplingException(f'You must select a strictly positive number of frames to select')
+    if n > len(txt_files):
+        raise SamplingException(f'Image bank contains {len(txt_files)} frames, but {n} frames where required for the '
+                                f'least confidence strategy !')
+    confidences = []
+    for txt_file in txt_files:
+        with open(os.path.join(image_labels_path, txt_file), 'r') as f:
+            lines = f.readlines()
+            if lines:
+                # If the file is not empty, compute the image confidence score
+                if aggregation_function == 'max':
+                    image_confidence = max([float(line.strip().split()[-1]) for line in lines])
+                elif aggregation_function == 'min':
+                    image_confidence = min([float(line.strip().split()[-1]) for line in lines])
+                elif aggregation_function == 'mean':
+                    object_confidences_scores = [float(line.strip().split()[-1]) for line in lines]
+                    image_confidence = sum(object_confidences_scores) / len(object_confidences_scores)
+                elif aggregation_function == 'sum':
+                    object_confidences_scores = [float(line.strip().split()[-1]) for line in lines]
+                    image_confidence = sum(object_confidences_scores)
+                else:
+                    raise SamplingException(f'You must select a valid aggregation function')
+                confidences.append((txt_file, image_confidence))
+
+    # Compute probabilities
+    if strategy == "logistic":
+        probabilities = [np.exp(-g * (1 - confidence)) for _, confidence in confidences]
+    elif strategy == "b-sampling":
+        probabilities = [(b / (b + (1 - confidence))) for _, confidence in confidences]
+    else:
+        raise SamplingException(f'You must select a valid sampling function')
+
+    # Filtering images based on the Bernoulli draws
+    np.random.seed(seed)
+    low_confidence_images = [(img, conf) for i, (img, conf) in enumerate(confidences) if np.random.binomial(1, (probabilities[i]))]
+
+    # Get N-first images with a confidence lower than the threshold
+    images_to_label = [os.path.splitext(img)[0] for img, _ in low_confidence_images[:n]]
+
+    return images_to_label
 
 def strategy_least_confidence(image_labels_path: str, n: int = DEFAULT_SUB_SAMPLE, aggregation_function: str = "max",
                               **kwargs) -> list:
@@ -123,6 +434,8 @@ def strategy_n_first(image_folder_path: str, imgExtension: str, val_size: int, n
     :param n: number of frames to select
     :return output_list: a list containing the selected images path
     """
+    print(image_folder_path)
+    print(imgExtension)
     path_list = list_files_without_extensions(image_folder_path, extension=imgExtension)[0:-val_size]
     if n <= 0:
         raise SamplingException(f'You must select a strictly positive number of frames to select')
@@ -256,6 +569,97 @@ def strategy_dense_optical_difference(image_folder_path: str, imgExtension: str,
         print(f"Selected [{len(output_list)}/{n}] Through Movement Analysis (Optical Flow Difference). Will not fill the rest since filling is disabled.")
         return output_list_processed
 
+def generate_path_to_frequencies(image_folder_path: str, bank_folder_path : str, imgExtension: str):
+    dic = {}
+    count1 = 0
+    for file in glob.glob(os.path.join(image_folder_path, "*."+imgExtension)):
+        print(str(count1)+  "- Processing image " + str(file))
+        sumFrequency_original, sumFrequency_removed = Frequency(image_path=file)
+        dic[file.replace(imgExtension,"")] = [np.absolute(sumFrequency_original), np.absolute(sumFrequency_removed)]
+        count1=count1+1
+    sumFrequencyDataset = pd.DataFrame.from_dict(dic, orient='index', columns=['frequency','frequency_filtered'])
+    path_to_store = os.path.join(bank_folder_path, 'frequencies.txt')
+    sumFrequencyDataset.to_csv(path_to_store, sep='\t')
+    return path_to_store
+
+def diversify_classes (counts, n:int = DEFAULT_SUB_SAMPLE):
+    #STEP 1 - Computing the ratios
+    ratios = counts/(sum(counts)) # The ratio of the number of instance per class
+    dis = np.round(ratios*n) # The distribution without correction
+    
+    # STEP 2. Sanity Check # 1 - Compensentating rounding errors. The sum in dis may not equal n but will always be inferior. 
+    if(sum(dis)<n):
+        index_min = np.where(dis==np.min(dis)) #We try to sele
+        toBalance = n-sum(dis) #We check the number of missing 
+        for c in index_min[0]:
+            if(toBalance>0):
+                dis[c]=1
+                toBalance=toBalance-1
+        #Diversify 
+    
+    index_max = np.where(dis==np.max(dis))
+    class_with_zeros = np.where(dis==0.)
+    #Balancing null elements
+    if((np.max(dis)<n) & (np.any(class_with_zeros))):
+        print('Must and can balance frequence class')
+        for c in class_with_zeros[0]:
+            if(dis[index_max]>1):
+                dis[index_max]=dis[index_max]-1
+                dis[c]=1
+            else:
+                print('Imperfect balance')
+    
+    #Sanity checks
+    assert np.all((dis>=0) | np.all(dis<0)),'Issue with the distribution, it contains negative assignation'
+    assert sum(dis)==n, 'The sum of the distribution does not match the wanted sample'
+    return dis
+
+def strategy_frequency(image_folder_path: str, bank_folder_path : str, imgExtension: str, n_groups : int = 10, n: int = DEFAULT_SUB_SAMPLE):
+    """
+    : param image_folder_path: path to the bank image folder
+    : param n: number of frames to select
+    : param n_groups : number of wanted clusters.
+    : return output_list: a list containing the selected images path
+    """
+    if(exists(os.path.join(bank_folder_path, 'frequencies.txt'))):
+        path_to_frequencies = os.path.join(bank_folder_path, 'frequencies.txt')
+    else:
+        warning('Must generate the frequencies, the processus takes time')
+        path_to_frequencies = generate_path_to_frequencies(image_folder_path, bank_folder_path, imgExtension)
+        
+    
+    df = pd.read_csv(path_to_frequencies, sep='\t',index_col=0)
+    sortedDataFiltered = df.sort_values(by=['frequency_filtered'], ascending=False)
+    groups = 10 #Hyperparameter of the method. It gives the number of expected cluster. 
+    (counts, bins) = np.histogram(sortedDataFiltered.get('frequency_filtered'),groups) #Bins are the edges of the different cluster 
+    
+    #STEP 2 - Generation of conditions for clustering.
+    #Generation of conditions for clustering. : EXAMPLE of the output for 3 groups. 
+    '''
+    condlist = [(sortedDataFiltered.frequency_filtered  >= bins[0]) & (sortedDataFiltered.frequency_filtered<=bins[1]), 
+            (sortedDataFiltered.frequency_filtered  > bins[1]) & (sortedDataFiltered.frequency_filtered<=bins[2]), 
+            (sortedDataFiltered.frequency_filtered  > bins[2]) & (sortedDataFiltered.frequency_filtered<=bins[3])]
+    '''
+    
+    condlist = [None] * len(counts) #Initalization of the condition list to assign the group
+    for l in range(0,len(bins)-1):
+        condlist[l] = (sortedDataFiltered.frequency_filtered  >= bins[l]) & (sortedDataFiltered.frequency_filtered<=bins[l+1]) #@Fixme, In this version the borders's class will be outwritten. We don't care as the method is not sensitive to borders. 
+    
+    #STEP 3 - Clustering
+    condarray = np.array(condlist) # bool representation where each row is a condition and each column is a row of the df
+    cond_true = [np.where(i)[0] for i in condarray.T]
+    sortedDataFiltered['group']=cond_true    
+    
+    #Step 4 - Inter-cluster diversification
+    dis = diversify_classes(counts,n) #Distribution
+    
+    #STEP 5 - Selection
+    selected_images = pd.DataFrame()
+    for i in range(0,len(dis)):
+        to_select = sortedDataFiltered[sortedDataFiltered['group']==i].head(int(dis[i]))
+        selected_images = selected_images.append(to_select)
+    print(selected_images)
+    return list(selected_images.index)
 
 def strategy_flow_interval_mix(image_folder_path: str, imgExtension: str, val_size: int, n: int = DEFAULT_SUB_SAMPLE,
             movement_percent: int = 90, difference_ratio: float = 4., **kwargs) -> list:
