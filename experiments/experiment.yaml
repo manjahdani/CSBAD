@@ -14,7 +14,7 @@ seed: 0
 n_samples: 100
 
 # For WALT dataset
-path_walt: "YOURPATH/TO/WALT-challenge"  # your path root folder
+path_walt: "/home/bstandaert/Documents/KDworkshop/WALT-challenge"  # your path root folder
 cam_walt: 1                              # camera number
 week_walt: 1                             # week number
 

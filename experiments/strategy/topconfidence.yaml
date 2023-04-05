@@ -1,7 +1,0 @@
-_target_: strategy.subsampling.strategy_top_confidence
-
-image_labels_path: "${dataset.bank_path}/labels_yolov8n_w_conf"
-aggregation_function: "sum"
-n: ${n_samples}
-
-name: "topconfidence_${strategy.aggregation_function}_${n_samples}"

@@ -1,0 +1,9 @@
+_target_: subsampling.strategies.thresholding_least_confidence
+
+image_labels_path: "${dataset.bank_path}/labels_yolov8n_w_conf"
+n: ${n_samples}
+aggregation_function: "max"
+sampling_rate: 0.10
+warmup_length: 300
+
+name: "least_confidence_${strategy.aggregation_function}_${n_samples}"

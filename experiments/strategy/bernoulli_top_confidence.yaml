@@ -1,8 +1,0 @@
-_target_: strategy.subsampling.bernoulli_top_confidence
-
-image_labels_path: "${dataset.bank_path}/labels_yolov8n_w_conf"
-n: ${n_samples}
-aggregation_function: "max"
-b_sampling: 0.04
-seed: 0
-name: "bernoulliTopconfidenceStreambased_${strategy.aggregation_function}_${n_samples}"

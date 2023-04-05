@@ -8,8 +8,7 @@ import shutil
 import random
 import numpy as np
 
-from annotation.dataset import build_val_folder
-from strategy.select_strategy import build_train_folder
+from subsampling.dataset_builder import build_val_folder, build_train_folder
 
 sys.path.append(os.path.join(sys.path[0], "yolov8", "ultralytics"))
 from ultralytics import YOLO
@@ -34,7 +33,7 @@ def train(config):
     # train model
     model.train(data="data.yaml", epochs=config.model.epochs, batch=config.model.batch)
 
-    # finish the run
+    # finish the run and remove tmp folders
     wandb.finish()
     shutil.rmtree(val_folder, ignore_errors=True)
     shutil.rmtree(train_folder, ignore_errors=True)
