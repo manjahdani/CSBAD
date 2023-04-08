@@ -2,7 +2,7 @@ import os
 import wandb
 
 # wandb params
-ENTITY = "trail22kd"
+ENTITY = "YourEntity"
 PROJECT = "walt1"
 
 # strategy is used to filter runs to renameS
