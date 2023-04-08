@@ -5,7 +5,7 @@ api = wandb.Api()
 STRATEGY = "random"
 ATTRIBUTE = "seed"
 
-runs = api.runs("trail22kd/walt1", 
+runs = api.runs("YourEntity/walt1", 
     {
         "state": "finished",
         "display_name": {"$regex": f".*{STRATEGY}.*"}
