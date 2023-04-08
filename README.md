@@ -1,7 +1,7 @@
 # Stream-Based Active Distillation for scalable model deployment
 
 
-![Pipeline](README/SBAD-transparent.png)
+![Pipeline](images/SBAD-transparent.png)
 
 <!-- ## Table of Contents
 - [Introduction](#description)
@@ -14,7 +14,7 @@
 
 This is the required dataset structure :
 
-![Dataset Structure](README/traill22_dataset_structure.svg)
+![Dataset Structure](images/traill22_dataset_structure.svg)
 
 Slight modifications to the structure are possible, but should be configured appropriately in the experimentation configuration. Here's How we used AI-City and WALT :
 
