@@ -16,7 +16,7 @@ This is the required dataset structure :
 
 ![Dataset Structure](README/traill22_dataset_structure.svg)
 
-Slight modification to the structure are possible, but should be configured appropriately in the experimentation configuration. Here's How we used AI-City and WALT :
+Slight modifications to the structure are possible, but should be configured appropriately in the experimentation configuration. Here's How we used AI-City and WALT :
 
 - WALT
 
@@ -139,7 +139,7 @@ To modify an experiment you can modify the configuration file `experiments/exper
 
 The logs, outputs and stuffs of your runs are automatically outputed in the `output` folder.
 
-*remark 1*: if you are using Windows, do not forget to adapt your paths by using `/` instead of **not** `\` or `//`.
+*remark*: if you are using Windows, do not forget to adapt your paths by using `/` instead of **not** `\` or `//`.
 
 >**IMPORTANT !**
 >
@@ -180,12 +180,12 @@ You can also run each script/tool individually :
 python testing/download.py -e YourEntity -p Ai-city -f ./testdir/Ai-city/wandb -lf -d
 ```
 
-3. Test downloaded models on the test set :
+2. Test downloaded models on the test set :
 ```
 python3 ./testing/inference.py -w ./testing/Ai-city/wandb -d "YOURPATH/WALT-or-AI-city/" -p AI-city -y testing/templates/Ai-city.yaml -f test -c ./testdir/Ai-city/inference_results.csv
 ```
 
-1. Test pretrained Student and Teacher models on dataset :
+3. Test pretrained Student and Teacher models on dataset :
 ```
 python3 testing/inference_coco.py --model yolov8n --csv_path ./testdir/Ai-city/inference_results.csv --dataset "s05c016->"YOURPATH/WALT-or-AI-city/s05c016/" --dataset "s05c017->"YOURPATH/WALT-or-AI-city/s05c017/" --data-template testing/templates/Ai-city.yaml --folder test
 ```
@@ -194,3 +194,5 @@ python3 testing/inference_coco.py --model yolov8n --csv_path ./testdir/Ai-city/i
 ```
 python testing/plot.py --csv_path ./testdir/Ai-city/inference_results.csv --save_path ./testdir/Ai-city/plots
 ```
+
+Use the `--help` flag for more information on the usage of each script.
