@@ -155,7 +155,7 @@ You can use the download to get all the models of a specific project from wandb.
 We Have created a `test.py` file that executes all of these steps in a single command.
 
 ```
-python test.py --run-prefix AI-city --entity YourEntity --project Ai-city --template testing/templates/Ai-city.yaml --dataset_path /path/to/dataset
+python test.py --run-prefix AI-city --entity YourEntity --project Ai-city --template testing/templates/Ai-city.yaml --dataset_path "YOURPATH/WALT-or-AI-city/"
 ```
 
 Flags :
@@ -182,12 +182,12 @@ python testing/download.py -e YourEntity -p Ai-city -f ./testdir/Ai-city/wandb -
 
 3. Test downloaded models on the test set :
 ```
-python3 ./testing/inference.py -w ./testing/Ai-city/wandb -d /path/to/dataset -p AI-city -y testing/templates/Ai-city.yaml -f test -c ./testdir/Ai-city/inference_results.csv
+python3 ./testing/inference.py -w ./testing/Ai-city/wandb -d "YOURPATH/WALT-or-AI-city/" -p AI-city -y testing/templates/Ai-city.yaml -f test -c ./testdir/Ai-city/inference_results.csv
 ```
 
 1. Test pretrained Student and Teacher models on dataset :
 ```
-python3 testing/inference_coco.py --model yolov8n --csv_path ./testdir/Ai-city/inference_results.csv --dataset "s05c016->/path/to/dataset/s05c016/" --dataset "s05c017->/path/to/dataset/s05c017/" --data-template testing/templates/Ai-city.yaml --folder test
+python3 testing/inference_coco.py --model yolov8n --csv_path ./testdir/Ai-city/inference_results.csv --dataset "s05c016->"YOURPATH/WALT-or-AI-city/s05c016/" --dataset "s05c017->"YOURPATH/WALT-or-AI-city/s05c017/" --data-template testing/templates/Ai-city.yaml --folder test
 ```
 
 4. Plot graphs :
