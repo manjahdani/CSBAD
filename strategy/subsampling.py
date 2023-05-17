@@ -397,7 +397,7 @@ def strategy_frequency(image_folder_path: str, bank_folder_path : str, imgExtens
     print(selected_images)
     return list(selected_images.index)
     
-def uniform_stream_based(image_labels_path: str,  n: int = DEFAULT_SUB_SAMPLE, sampling_rate: float = 0.005, seed: int = 0,
+def uniform_stream_based(image_labels_path: str,  n: int = DEFAULT_SUB_SAMPLE, sampling_rate: float = 0.005, seed: int = 2,
                          **kwargs) -> list:
     """
     Simulating a scenario where at each time-step we draw a number from a uniform distribution bounded in [0, 1].
@@ -416,7 +416,7 @@ def uniform_stream_based(image_labels_path: str,  n: int = DEFAULT_SUB_SAMPLE, s
         raise SamplingException(f'Image bank contains {len(path_list)} frames, but {n} frames where required for the '
                                 f'random strategy !')
     path_list.sort()
-    np.random.seed(seed)
+    np.random.seed(2)
     rand_array = np.random.uniform(0, 1, len(path_list))
     output_list = [path_list[i] for i in range(len(path_list)) if rand_array[i] >= (1-sampling_rate)]
     return output_list[:n]

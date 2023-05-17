@@ -22,11 +22,17 @@ elif __name__ == 'testing.inference':
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 TMP_DATA_YAML = os.path.join(BASE_PATH, 'data.yaml')
 
-STRATEGIES = ['n_first', 'fixed_interval', 'flow_diff', 'flow_interval_mix', 'random', 'entropy', 'frequency',
+STRATEGIES = ['last_25_random','last_50_random', # RANDOM MULTI-ITERATION
+               'frequency_50_confidence_max', 'frequency_75_confidence_max','frequency_100_confidence_max',
+               "threshconfidentTeacherStreambased_max",
+               'frequency_50_confidence_min','frequency_75_confidence_min','frequency_100_confidence_min',
+               'frequency_50_topconfidence_max', 'frequency_75_topconfidence_max','frequency_100_topconfidence_max',
+               'n_first', 'fixed_interval', 'flow_diff', 'flow_interval_mix', 'entropy', 'frequency',
+               'random0','random1','random1', 'random2', 'random3', 'randomunknown',
                "topconfidence_max","topconfidence_sum","movement",
                "uniformStreambased", #Random stream-based
                "threshTopconfidenceStreambased_sum", "threshTopconfidenceStreambased_max", "threshLeastconfidenceStreambased_max", #stream-based
-               "bernoulliLeastconfidenceStreambased_max","bernoulliTopconfidenceStreambased_max",
+               "bernoulliLeastconfidenceStreambased_max","bernoulliTopconfidenceStreambased_max","confidentTeacher_max",
                "confidence_max", "confidence_min"]
 # METRICS = ['metrics/precision(B)', 'metrics/recall(B)', 'metrics/mAP50(B)', 'metrics/mAP50-95(B)', 'fitness']
 METRICS = ['precision', 'recall', 'mAP50', 'mAP50-95', 'fitness']
