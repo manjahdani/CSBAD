@@ -1,4 +1,4 @@
-_target_: strategy.subsampling.strategy_n_first
+_target_: subsampling.strategies.strategy_n_first
 
 image_folder_path: "${dataset.image_path}"
 imgExtension: "${dataset.extension}"

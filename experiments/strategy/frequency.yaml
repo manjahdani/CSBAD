@@ -1,4 +1,4 @@
-_target_: strategy.subsampling.strategy_frequency
+_target_: subsampling.strategies.strategy_frequency
 
 image_folder_path: "${dataset.image_path}"
 bank_folder_path: "${dataset.bank_path}"

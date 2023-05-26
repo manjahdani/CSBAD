@@ -1,4 +1,4 @@
-_target_: strategy.subsampling.strategy_least_confidence
+_target_: subsampling.strategies.strategy_least_confidence
 
 image_labels_path: "${dataset.bank_path}/labels_yolov8n_w_conf"
 aggregation_function: "min"

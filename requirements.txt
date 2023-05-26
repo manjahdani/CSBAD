@@ -11,4 +11,7 @@ wandb==0.12.11
 tabulate==0.8.9
 hydra-core
 scikit-image
-wanbdb
+torch
+tqdm
+matplotlib
+pandas

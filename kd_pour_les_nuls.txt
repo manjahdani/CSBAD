@@ -1,4 +1,10 @@
-﻿(1) Installation :
+﻿"""
+
+DEPRECATED FILE ???
+
+"""
+
+(1) Installation :
 
 Il faut installer (via pip) ces librairies dans ton environnement:
 - torch (normalement tu as déjà)

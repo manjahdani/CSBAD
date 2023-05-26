@@ -1,4 +1,4 @@
-_target_: strategy.subsampling.strategy_fixed_interval
+_target_: subsampling.strategies.strategy_fixed_interval
 
 image_folder_path: "${dataset.image_path}"
 imgExtension: "${dataset.extension}"

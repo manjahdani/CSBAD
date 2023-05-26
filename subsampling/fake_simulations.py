@@ -1,6 +1,12 @@
+"""
+
+DEPRECATED FILE ???
+
+"""
+
 from operator import sub
-import os, os.path
-from subsampling import *
+import os.path
+from strategies import *
 import argparse
 
 def simulate_log_files (folder_path, strat_name, n_start, n_max, step):

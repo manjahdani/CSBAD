@@ -1,4 +1,4 @@
-_target_: strategy.subsampling.strategy_dense_optical_difference
+_target_: subsampling.strategies.strategy_dense_optical_difference
 
 image_folder_path: "${dataset.image_path}"
 imgExtension: "${dataset.extension}"

@@ -1,11 +1,14 @@
+"""
+
+DEPRECATED FILE ???
+Same as strategy/strategyFrequency.py
+
+"""
 from skimage.io import imread
 from skimage.color import rgb2gray
 import numpy as np
 import matplotlib.pyplot as plt
 import copy
-import time
-import glob
-import os
 
 def highpassFilter(dataFourier, n):
     # high pass filter

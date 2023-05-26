@@ -17,11 +17,7 @@ n_samples: 25           # your strategy number of samples: [25, 50, 75, 100]
 # For WALT dataset
 path_walt: "/home/dani/data/WALT-challenge" # your path root folder
 cam_walt: 1                             # camera number
-<<<<<<< HEAD
 week_walt: 1                            # week number
-=======
-week_walt: 1                             # week number
->>>>>>> main
 
 # For AI-city dataset
 path_ai-city: "/home/dani/data/AI-city-challenge"     # your path root folder

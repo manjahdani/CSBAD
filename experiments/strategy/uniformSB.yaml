@@ -1,4 +1,4 @@
-_target_: strategy.subsampling.uniform_stream_based
+_target_: subsampling.strategies.uniform_stream_based
 
 image_labels_path: "${dataset.bank_path}/labels_yolov8n_w_conf"
 n: ${n_samples}

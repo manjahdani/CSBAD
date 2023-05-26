@@ -14,15 +14,13 @@ sys.path.append(os.path.join(sys.path[0], "yolov8", "ultralytics"))
 from ultralytics import YOLO
 
 
-
 @hydra.main(version_base=None, config_path="experiments", config_name="experiment")
 def train(config):
-
     # Check if GPU is available
     if torch.cuda.is_available():
-        device = "cuda:0" #Use GPU
+        device = "cuda:0"  # Use GPU
     else:
-        device = None   # Use CPU
+        device = None  # Use CPU
 
     # Set the default device for tensors
     torch.cuda.set_device(device)
@@ -41,7 +39,12 @@ def train(config):
     # init model
     model = YOLO(config.model.weights, cmd_args=config.model)
     # train model
-    model.train(data="data.yaml", epochs=config.model.epochs, batch=config.model.batch, device = device)
+    model.train(
+        data="data.yaml",
+        epochs=config.model.epochs,
+        batch=config.model.batch,
+        device=device,
+    )
 
     # finish the run and remove tmp folders
     wandb.finish()
