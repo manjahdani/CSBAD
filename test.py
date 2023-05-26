@@ -41,7 +41,7 @@ if __name__ == "__main__":
     args.weight_path = args.folder
     args.folder = 'test'
     args.csv_path = os.path.join(DEFAULT_PROJECT_DIR, args.project, 'inference_results.csv')
-    
+    print(args.dataset_path)
     runs = inference.main( # <- inference script
         args.weight_path,
         args.csv_path,
