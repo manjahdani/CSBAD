@@ -3,10 +3,10 @@ import random
 import cv2
 import numpy as np
 from tqdm import tqdm
-from utils import *
+from .utils import *
 import pandas as pd
 from os.path import exists
-from frequency_utils import *
+from .frequency_utils import *
 # Ignoring numpy warnings
 import warnings
 warnings.filterwarnings('ignore')
