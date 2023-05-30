@@ -5,7 +5,7 @@ from os.path import exists
 
 # Ignoring numpy warnings
 import warnings
-from frequency_utils import *
+from .frequency_utils import *
 
 warnings.filterwarnings("ignore")
 
