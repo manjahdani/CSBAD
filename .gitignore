@@ -166,3 +166,6 @@ runs/
 multirun/
 outputs/
 testdir/
+
+#weights
+*.pt 
