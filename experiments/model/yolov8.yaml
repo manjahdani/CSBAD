@@ -1,7 +1,8 @@
 weights: "${project_dir}/yolov8/yolov8n.pt"
-name: "${dataset.name}_yolov8n_${strategy.name}"
-entity: "YourEntity"
-project: "${dataset.basename}"
+name: "${dataset.name}_yolov8n_${strategy.name}_${teacher}"
+entity: "sbad"
+project: "test"
 epochs: 100
 batch: 16
+teacher: ${teacher}
 data: "${project_dir}/experiments/model/data.yaml"

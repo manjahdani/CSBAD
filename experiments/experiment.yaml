@@ -12,6 +12,7 @@ defaults:
 
 seed: 0
 
+teacher: 'yolov8x6'
 n_samples: 25           # your strategy number of samples: [25, 50, 75, 100]
 
 # For WALT dataset

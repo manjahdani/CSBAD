@@ -72,6 +72,7 @@ def build_run_info(weight, dataset_path, project, summary):
             break
     if run_name in summary:
         # '-'.join(run.split(project)[1].strip('-').split('_')[0].split('-')),
+        teacher = run_name.split('_')[-1]
         return {
             'id': run.split('.')[0],
             # 'data-name': run.split(project)[1].strip('-').split('_')[0].split('-')[0],
@@ -81,6 +82,7 @@ def build_run_info(weight, dataset_path, project, summary):
             'best/epoch': summary[run_name]['best/epoch'],
             'samples': int(run.split(project)[1].split(strategy)[1].strip('_').split('.')[0].split('-')[0].split('_')[0]),
             'data': os.path.join(dataset_path, run.split(project)[1].strip('-').split('_')[0].split('-')[0]), # *run.split(project)[1].strip('-').split('_')[0].split('-')
+            'teacher': teacher  # Add this line
         }
 
 def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base_data_yaml, task):
@@ -100,7 +102,7 @@ def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base
     if not os.path.isfile(csv_path):
         with open(csv_path, 'w') as f:
             writer = csv.writer(f)
-            writer.writerow(['run_id', 'data-name', 'strategy', 'epochs', 'best/epoch', 'samples', *METRICS])
+            writer.writerow(['run_id', 'data-name', 'strategy', 'teacher', 'epochs', 'best/epoch', 'samples', *METRICS])
 
     testable = 0
     with open(csv_path, 'r') as f:
@@ -113,7 +115,8 @@ def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base
                     testable += 1
 
     print(f'Found {len(runs)} runs for project {project} of which {testable} need testing')
-    print(tabulate([r.values() for r in runs], headers=['RUN-ID', 'DATA-SHORT-NAME', 'STRATEGY', 'EPOCHS', 'BEST/EPOCH', 'SAMPLES', 'DATA', 'MODEL', 'TESTED']))
+   
+    print(tabulate([r.values() for r in runs], headers=['RUN-ID', 'DATA-SHORT-NAME', 'STRATEGY', 'TEACHER', 'EPOCHS', 'BEST/EPOCH', 'SAMPLES', 'DATA', 'MODEL', 'TESTED']))
     
     # testing
     for i, run in enumerate(runs):
@@ -130,7 +133,7 @@ def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base
             if len(results) == len(METRICS):
                 with open(csv_path, 'a+') as f:
                     writer = csv.writer(f)
-                    writer.writerow([run['id'], run['data-name'], run['strategy'], run['epochs'], run['best/epoch'], run['samples'], *list(results.values())])
+                    writer.writerow([run['id'], run['data-name'], run['strategy'], run['teacher'], run['epochs'], run['best/epoch'], run['samples'], *list(results.values())])
             else:
                 print('TESTING ERROR. NOT SAVING !')
 
