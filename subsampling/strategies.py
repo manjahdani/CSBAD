@@ -630,7 +630,10 @@ def strategy_n_first(
         )
     path_list.sort()
     output_list = path_list[:n]
+    print('outputlist',output_list)
     return output_list
+
+
 
 
 def strategy_best_entropy(

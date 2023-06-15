@@ -22,6 +22,14 @@ def train(config):
     else:
         device = None  # Use CPU
 
+    
+    cam_week_pairs = config.cam_week_pairs
+    name_parts = [f"cam{pair['cam']}-week{pair['week']}" for pair in cam_week_pairs]
+    config.dataset.name = f"{config.dataset.basename}-{'-'.join(name_parts)}"
+
+    config.model.name=config.dataset.name +"_yolov8n"+f"_{config.train.strategy.name}_{config.teacher}" 
+
+
     # Set the default device for tensors
     torch.cuda.set_device(device)
     # fix the seed

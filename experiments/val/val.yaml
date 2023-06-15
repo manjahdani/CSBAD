@@ -1,5 +1,7 @@
-bank_folder: "${dataset.bank_path}"
+cam_week_pairs: ${cam_week_pairs}
+val_set_size: 300
+base_folder: "${path_walt}"
 extension: "${dataset.extension}"
 labels_folder: "${dataset.label_path}"
-val_set_size: 300
-min_n_frame: 500
+teacher: ${teacher}
+

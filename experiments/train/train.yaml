@@ -1,7 +1,13 @@
-subsample:
-  in_folder: "${dataset.bank_path}"
-  out_folder: "${dataset.train_path}"
-  imgExtension: "${dataset.extension}"
-  labelsFolder: "${dataset.label_path}"
+# subsample:
+#   in_folder: "${dataset.bank_path}"
+#   out_folder: "${dataset.train_path}"
+#   imgExtension: "${dataset.extension}"
+#   labelsFolder: "${dataset.label_path}"
 
+cam_week_pairs: ${cam_week_pairs}
+val_set_size: 300
+base_folder: "${path_walt}"
+extension: "${dataset.extension}"
+labels_folder: "${dataset.label_path}"
 strategy: "${strategy}"
+teacher : "${teacher}"

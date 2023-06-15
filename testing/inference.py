@@ -66,11 +66,12 @@ def get_weights(weights_path, project):
 def build_run_info(weight, dataset_path, project, summary):
     run = weight.split('/')[-1]
     run_name = run.split('.')[1]
-
+    print(project)
     for strategy in STRATEGIES:
         if strategy in run.split(project)[1]:
             break
     if run_name in summary:
+        print('run_name',run_name)
         # '-'.join(run.split(project)[1].strip('-').split('_')[0].split('-')),
         teacher = run_name.split('_')[-1]
         return {
@@ -186,4 +187,5 @@ if __name__ == "__main__":
     if not args.wandb_project:
         args.wandb_project = args.project
 
-    main(args.weights_path, args.csv_path, args.dataset_path, args.project, args.wandb_project, args.data_template, args.folder)
+    print(args.data_template)
+    #main(args.weights_path, args.csv_path, args.dataset_path, args.project, args.wandb_project, args.data_template, args.folder)
