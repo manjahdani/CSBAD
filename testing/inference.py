@@ -41,7 +41,6 @@ def get_runs_summary(weights_path, project, wandb_project_name):
     summary = os.path.join(os.path.abspath(weights_path), wandb_project_name + '.csv')
     with open(summary, 'r', encoding = 'utf-8') as f:
         lines = f.readlines()[1:]
-        # lines = [l.strip().split(',') for l in lines]
 
     summary_processed = {}
     for line in lines:
