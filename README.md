@@ -1,6 +1,6 @@
 # Stream-Based Active Distillation for Scalable Model Deployment
 
-[[paper]](link)[[test_set_WALT_cam1]](https://universe.roboflow.com/sbad/walt_cam1_test_set) [[test_set_WALT_cam2]](https://universe.roboflow.com/sbad/walt_cam2_test_set)
+[[paper]](https://openaccess.thecvf.com/content/CVPR2023W/L3D-IVU/papers/Manjah_Stream-Based_Active_Distillation_for_Scalable_Model_Deployment_CVPRW_2023_paper.pdf)[[test_set_WALT_cam1]](https://universe.roboflow.com/sbad/walt_cam1_test_set) [[test_set_WALT_cam2]](https://universe.roboflow.com/sbad/walt_cam2_test_set)[[poster]](https://drive.google.com/file/d/1C240nyjE7iUKLqe-sycxGSnn2jnoOFhq/view?usp=drive_link)
 
 ![Pipeline](images/SBAD-transparent.png)
 
@@ -112,7 +112,13 @@ Dataset
 To generate the pseudo labels, execute the following command:
 
 ```bash
-python annotation/generate_pseudo_labels.py --parent "YOURPATH/WALT" --extension "jpg-or-png"
+python generate_pseudo_labels.py --folder "YOURPATH/WALT"
+
+OPTIONAL:
+--extension #"jpg-or-png"
+--model-name #"yolov8n,yolov8s,yolov8m,yolov8l,yolov8x6" or any custom model
+--output-conf #flag to produce labels with confidence, only useful for strategies 
+
 ```
 *Note:* The 'bank' folder must contain an 'images' folder with all the images. If you are on Windows, only use `"` and **not** `'`.
 
