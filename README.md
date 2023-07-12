@@ -204,4 +204,3 @@ python testing/plot.py --csv_path ./testdir/WALT/inference_results.csv --save_pa
 ```
 
 Use the `--help` flag for more information on the usage of each script.
-

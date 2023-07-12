@@ -5,4 +5,4 @@ n: ${n_samples}
 
 sampling_rate: 0.10
 seed: 0
-name: "uniformStreambased_${n_samples}"
+name: "uniform-random_stream-based_${n_samples}"

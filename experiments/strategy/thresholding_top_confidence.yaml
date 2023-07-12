@@ -5,4 +5,4 @@ n: ${n_samples}
 aggregation_function: "sum"
 sampling_rate: 0.10
 warmup_length: 720
-name: "threshTopconfidenceStreambased_${strategy.aggregation_function}_${n_samples}"
+name: "thresholhed-top-confidence-${strategy.aggregation_function}_stream-based_${n_samples}"

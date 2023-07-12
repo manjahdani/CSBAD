@@ -5,4 +5,4 @@ imgExtension: "${dataset.extension}"
 val_size: ${val.val_set_size}
 n: ${n_samples}
 
-name: "n_first_${n_samples}"
+name: "n-first_stream-based_${n_samples}"

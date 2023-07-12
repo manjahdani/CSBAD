@@ -6,4 +6,4 @@ imgExtension: "${dataset.extension}"
 n_groups: 10
 n: ${n_samples}
 
-name: "frequency_${n_samples}"
+name: "frequency_pool-based_${n_samples}"

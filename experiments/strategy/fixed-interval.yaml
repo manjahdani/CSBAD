@@ -5,4 +5,4 @@ imgExtension: "${dataset.extension}"
 val_size: ${val.val_set_size}
 n: ${n_samples}
 
-name: "fixed-interval_${n_samples}"
+name: "fixed-interval_pool-based_${n_samples}"
