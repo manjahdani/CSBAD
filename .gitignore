@@ -166,6 +166,7 @@ runs/
 multirun/
 outputs/
 testdir/
+wandb/
 
 #weights
 *.pt 
