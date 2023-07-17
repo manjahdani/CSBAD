@@ -4,4 +4,4 @@ image_labels_path: "${dataset.bank_path}/labels_yolov8n_w_conf"
 aggregation_function: "min"
 n: ${n_samples}
 
-name: "confidence_${strategy.aggregation_function}_${n_samples}"
+name: "least-confidence_${strategy.aggregation_function}_pool-based_${n_samples}"
