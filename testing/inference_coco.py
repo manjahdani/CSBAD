@@ -5,6 +5,7 @@ import cv2
 import argparse
 from tabulate import tabulate
 import time
+import pandas as pd
 import logging
 
 import gc
@@ -24,26 +25,43 @@ TMP_DATA_YAML = os.path.join(BASE_PATH, 'data.yaml')
 METRICS = ['precision', 'recall', 'mAP50', 'mAP50-95', 'fitness']
 MODELS = ['yolov8n', 'yolov8s', 'yolov8m', 'yolov8l', 'yolov8x6']
 
-def main(model, csv_path, datasets, base_data_yaml, task):
+def main(run_prefix, csv_path, datasets, base_data_yaml, task):
+        # Check if GPU is available
+    if torch.cuda.is_available():
+        device = "cuda:0"  # Use GPU
+    else:
+        device = None  # Use CPU
+    torch.cuda.set_device(device)
     runs = []
     to_do = []
     for d in datasets:
         for m in MODELS:
             runs += [{'model': m, 'data-name': d.split('->')[0], 'data': d.split('->')[1]}]
-            to_do += [model == m]
+            to_do += [True]#[model == m]
 
     if not os.path.isfile(csv_path):
         with open(csv_path, 'w') as f:
             writer = csv.writer(f)
-            writer.writerow(['run_id', 'data-name', 'strategy', 'epochs', 'best/epoch', 'samples', *METRICS])
-
+            writer.writerow(['run_id', 
+                            'source_dataset', 'source_domain','source_period',
+                            'target_domain', #@FIXME Should include target_dataset and target_period
+                            'student', 'teacher', 
+                            'epochs', 'best/epoch', 
+                            'strategy',
+                            'setting', 
+                            'samples', 
+                            *METRICS])
     testable = 0
+    df=pd.read_csv(csv_path)
+
+
     with open(csv_path, 'r') as f:
         lines = f.readlines()[1:]
         for run in runs:
             run['tested'] = 'NO'
-            for line in lines:
-                if run['model'] in line and run['data-name'] in line:
+            unique_strategies = df[df['source_domain'] == run['data-name']]['strategy'].unique()
+            print (unique_strategies)
+            if run['model'] in unique_strategies:
                     run['tested'] = 'YES'
                     testable += 1
 
@@ -66,12 +84,18 @@ def main(model, csv_path, datasets, base_data_yaml, task):
             
             model = YOLO(run['model'] + '.pt')
 
-            results = model.val(data=TMP_DATA_YAML, task=task, imgsz=640, conf=0.4, iou=0.7, batch=1, single_cls=True) # [2, 3, 7]
+            results = model.val(data=TMP_DATA_YAML, task=task, imgsz=640, conf=0.4, iou=0.7, batch=1, single_cls=True,device=device) # [2, 3, 7]
             
             if len(results) == len(METRICS):
                 with open(csv_path, 'a+') as f:
                     writer = csv.writer(f)
-                    writer.writerow(['cocoyolo', run['data-name'], run['model'],0, 0, 0, *list(results.values())])
+                    writer.writerow(['cocoyolo', 
+                                     run_prefix, run['data-name'], "undefined",
+                                     run['data-name'],
+                                     "null","null",
+                                     0, 
+                                     0, 
+                                     run['model'], "null", 0, *list(results.values())])
             else:
                 print('TESTING ERROR. NOT SAVING !')
 
