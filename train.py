@@ -24,12 +24,14 @@ def train(config):
 
     
     cam_week_pairs = config.cam_week_pairs
-    name_parts = [f"cam{pair['cam']}-week{pair['week']}" for pair in cam_week_pairs]
-    config.dataset.name = f"{config.dataset.basename}-{'-'.join(name_parts)}"
 
-    config.model.name=config.dataset.name +"_yolov8n"+f"_{config.train.strategy.name}_{config.teacher}" 
+    cams = [str(pair['cam']) for pair in cam_week_pairs]
+    weeks = [str(pair['week']) for pair in cam_week_pairs]
 
+    config.dataset.name = f"{config.dataset.basename}-cam{'e'.join(cams)}-week{'e'.join(weeks)}"
 
+    config.model.name=config.dataset.name +f"_{config.student}"+f"_{config.teacher}"+f"_{config.train.strategy.name}" 
+    
     # Set the default device for tensors
     torch.cuda.set_device(device)
     # fix the seed
@@ -43,7 +45,7 @@ def train(config):
 
     # update data files
     update_config_file(config)
-
+    print(config.model.weights)
     # init model
     model = YOLO(config.model.weights, cmd_args=config.model)
     # train model
