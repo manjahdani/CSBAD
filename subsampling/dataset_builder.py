@@ -66,7 +66,7 @@ def build_train_folder(config):
         labels_folder = os.path.join(bank_folder, f"labels_{config.teacher}")
         image_folder = bank_folder + "/images"
         config.strategy.image_folder_path=image_folder
-        config.strategy.image_labels_path=os.path.join(bank_folder,f"labels_${config.student}_w_conf")
+        config.strategy.image_labels_path=os.path.join(bank_folder,f"labels_{config.student}_w_conf")
         subsample_names = call(config.strategy)
         copy_subsample(
             subsample_names,
