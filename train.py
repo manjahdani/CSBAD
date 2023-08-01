@@ -45,7 +45,8 @@ def train(config):
 
     # update data files
     update_config_file(config)
-    print(config.model.weights)
+
+
     # init model
     model = YOLO(config.model.weights, cmd_args=config.model)
     # train model
@@ -53,7 +54,7 @@ def train(config):
         data="data.yaml",
         epochs=config.model.epochs,
         batch=config.model.batch,
-        device=device,
+        device=device
     )
 
     # finish the run and remove tmp folders
