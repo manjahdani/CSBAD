@@ -1,8 +1,9 @@
 _target_: subsampling.strategies.strategy_random
 
 image_folder_path: "${dataset.image_path}"
+image_labels_path: "${dataset.bank_path}/labels_yolov8n_w_conf"
 imgExtension: "${dataset.extension}"
 val_size: ${val.val_set_size}
 n: ${n_samples}
-
-name: "random_pool-based_${n_samples}"
+seed: ${seed}
+name: "random-${seed}_pool-based_${n_samples}"

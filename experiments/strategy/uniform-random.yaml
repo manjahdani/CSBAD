@@ -4,5 +4,5 @@ image_folder_path: "${dataset.image_path}"
 image_labels_path: "${dataset.bank_path}/labels_yolov8n_w_conf"
 n: ${n_samples}
 sampling_rate: 0.10
-seed: 0
-name: "uniform-random_stream-based_${n_samples}"
+seed: ${seed}
+name: "uniform-random-${seed}_stream-based_${n_samples}"
