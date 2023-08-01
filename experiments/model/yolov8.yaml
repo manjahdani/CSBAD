@@ -1,5 +1,5 @@
 weights: "${project_dir}/yolov8/${student}.pt"
-name: "${dataset.name}_${student}_${strategy.name}_${teacher}"
+name: "${dataset.name}_${student}_${teacher}_${strategy.name}"
 entity: "YourEntity" #TO CHANGE for your WANDB entity
 project: "${dataset.basename}"
 epochs: 100

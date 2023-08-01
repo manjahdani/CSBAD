@@ -1,4 +1,4 @@
-cam_week_pairs: ${cam_week_pairs}
+cam_week_pairs: ${cam_week_pairs} #Generated during train.py
 val_set_size: 300
 base_folder: "${path_walt}"
 extension: "${dataset.extension}"

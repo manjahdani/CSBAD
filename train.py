@@ -22,16 +22,8 @@ def train(config):
     else:
         device = None  # Use CPU
 
-    
-    cam_week_pairs = config.cam_week_pairs
+    config.cam_week_pairs = generate_cameras_pairs(config.dataset.name)
 
-    cams = [str(pair['cam']) for pair in cam_week_pairs]
-    weeks = [str(pair['week']) for pair in cam_week_pairs]
-
-    config.dataset.name = f"{config.dataset.basename}-cam{'e'.join(cams)}-week{'e'.join(weeks)}"
-
-    config.model.name=config.dataset.name +f"_{config.student}"+f"_{config.teacher}"+f"_{config.train.strategy.name}" 
-    
     # Set the default device for tensors
     torch.cuda.set_device(device)
     # fix the seed
@@ -77,6 +69,27 @@ def update_config_file(config):
     data["path"] = os.getcwd()
     with open("data.yaml", mode="w") as f:
         yaml.dump(data, f)
+
+
+def generate_cameras_pairs(input_string):
+    # Find the index of the '-'
+    dash_index = input_string.index('-')
+
+    # Find the index of the '-week'
+    week_index = input_string.index('-week')
+
+    # Get the cameras and weeks as lists of characters
+    cameras = input_string[dash_index+4:week_index].split('e')
+    weeks = input_string[week_index+5:].split('e')
+
+    # Check that the number of cameras is equal to the number of weeks
+    if len(cameras) != len(weeks):
+        raise ValueError("The number of cameras must be equal to the number of weeks")
+
+    # Generate the output
+    output = [{'cam': int(cam), 'week': int(week)} for cam, week in zip(cameras, weeks)]
+    
+    return output
 
 
 if __name__ == "__main__":
