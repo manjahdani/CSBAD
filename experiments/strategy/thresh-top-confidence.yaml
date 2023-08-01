@@ -6,4 +6,4 @@ n: ${n_samples}
 aggregation_function: "max"
 sampling_rate: 0.10 
 warmup_length: 720
-name: "thresholhed-top-confidence-${strategy.aggregation_function}_stream-based_${n_samples}"
+name: "thresholded-top-confidence-${strategy.aggregation_function}_stream-based_${n_samples}"
