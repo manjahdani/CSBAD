@@ -43,6 +43,7 @@ def uniform_stream_based(
         )
     path_list.sort()
     np.random.seed(seed)
+    print("I used the seed :", seed)
     rand_array = np.random.uniform(0, 1, len(path_list))
     output_list = [
         path_list[i]
@@ -137,6 +138,8 @@ def thresholding_least_confidence(
     Returns:
     - images_to_label: list of strings, paths to the .txt files with the images to be labeled
     """
+    print("I am using this path",image_labels_path)
+    print("I am using those parameters", n,aggregation_function,warmup_length,sampling_rate)
     txt_files = [filename for filename in os.listdir(image_labels_path)]
     if n <= 0:
         raise SamplingException(
@@ -155,22 +158,22 @@ def thresholding_least_confidence(
                 # If the file is not empty, compute the image confidence score
                 if aggregation_function == "max":
                     image_confidence = max(
-                        [float(line.strip().split()[-1]) for line in lines]
+                        [float(line.strip().split()[5]) for line in lines]
                     )
                 elif aggregation_function == "min":
                     image_confidence = min(
-                        [float(line.strip().split()[-1]) for line in lines]
+                        [float(line.strip().split()[5]) for line in lines]
                     )
                 elif aggregation_function == "mean":
                     object_confidences_scores = [
-                        float(line.strip().split()[-1]) for line in lines
+                        float(line.strip().split()[5]) for line in lines
                     ]
                     image_confidence = sum(object_confidences_scores) / len(
                         object_confidences_scores
                     )
                 elif aggregation_function == "sum":
                     object_confidences_scores = [
-                        float(line.strip().split()[-1]) for line in lines
+                        float(line.strip().split()[5]) for line in lines
                     ]
                     image_confidence = sum(object_confidences_scores)
                 else:
@@ -192,16 +195,16 @@ def thresholding_least_confidence(
 
     # Get N-first images with a confidence lower than the threshold
     images_to_label = [os.path.splitext(img)[0] for img, _ in low_confidence_images[:n]]
-
+    print("I return this", images_to_label)
     return images_to_label
 
 
 def thresholding_top_confidence(
     image_labels_path: str,
     n: int = DEFAULT_SUB_SAMPLE,
-    aggregation_function: str = "min",
-    warmup_length=750,
-    sampling_rate=0.05,
+    aggregation_function: str = "max",
+    warmup_length=720,
+    sampling_rate=0.10,
     **kwargs,
 ) -> list:
     """
@@ -237,22 +240,22 @@ def thresholding_top_confidence(
                 # If the file is not empty, compute the image confidence score
                 if aggregation_function == "max":
                     image_confidence = max(
-                        [float(line.strip().split()[-1]) for line in lines]
+                        [float(line.strip().split()[5]) for line in lines]
                     )
                 elif aggregation_function == "min":
                     image_confidence = min(
-                        [float(line.strip().split()[-1]) for line in lines]
+                        [float(line.strip().split()[5]) for line in lines]
                     )
                 elif aggregation_function == "mean":
                     object_confidences_scores = [
-                        float(line.strip().split()[-1]) for line in lines
+                        float(line.strip().split()[5]) for line in lines
                     ]
                     image_confidence = sum(object_confidences_scores) / len(
                         object_confidences_scores
                     )
                 elif aggregation_function == "sum":
                     object_confidences_scores = [
-                        float(line.strip().split()[-1]) for line in lines
+                        float(line.strip().split()[5]) for line in lines
                     ]
                     image_confidence = sum(object_confidences_scores)
                 else:
@@ -277,6 +280,7 @@ def thresholding_top_confidence(
     # Get N-first images with a confidence lower than the threshold
     images_to_label = [os.path.splitext(img)[0] for img, _ in top_confidence_images[:n]]
 
+    print(images_to_label)
     return images_to_label
 
 
@@ -323,22 +327,22 @@ def bernoulli_least_confidence(
                 # If the file is not empty, compute the image confidence score
                 if aggregation_function == "max":
                     image_confidence = max(
-                        [float(line.strip().split()[-1]) for line in lines]
+                        [float(line.strip().split()[5]) for line in lines]
                     )
                 elif aggregation_function == "min":
                     image_confidence = min(
-                        [float(line.strip().split()[-1]) for line in lines]
+                        [float(line.strip().split()[5]) for line in lines]
                     )
                 elif aggregation_function == "mean":
                     object_confidences_scores = [
-                        float(line.strip().split()[-1]) for line in lines
+                        float(line.strip().split()[5]) for line in lines
                     ]
                     image_confidence = sum(object_confidences_scores) / len(
                         object_confidences_scores
                     )
                 elif aggregation_function == "sum":
                     object_confidences_scores = [
-                        float(line.strip().split()[-1]) for line in lines
+                        float(line.strip().split()[5]) for line in lines
                     ]
                     image_confidence = sum(object_confidences_scores)
                 else:
@@ -412,22 +416,22 @@ def bernoulli_top_confidence(
                 # If the file is not empty, compute the image confidence score
                 if aggregation_function == "max":
                     image_confidence = max(
-                        [float(line.strip().split()[-1]) for line in lines]
+                        [float(line.strip().split()[5]) for line in lines]
                     )
                 elif aggregation_function == "min":
                     image_confidence = min(
-                        [float(line.strip().split()[-1]) for line in lines]
+                        [float(line.strip().split()[5]) for line in lines]
                     )
                 elif aggregation_function == "mean":
                     object_confidences_scores = [
-                        float(line.strip().split()[-1]) for line in lines
+                        float(line.strip().split()[5]) for line in lines
                     ]
                     image_confidence = sum(object_confidences_scores) / len(
                         object_confidences_scores
                     )
                 elif aggregation_function == "sum":
                     object_confidences_scores = [
-                        float(line.strip().split()[-1]) for line in lines
+                        float(line.strip().split()[5]) for line in lines
                     ]
                     image_confidence = sum(object_confidences_scores)
                 else:
@@ -497,22 +501,22 @@ def strategy_least_confidence(
                 # If the file is not empty, compute the image confidence score
                 if aggregation_function == "max":
                     image_confidence = max(
-                        [float(line.strip().split()[-1]) for line in lines]
+                        [float(line.strip().split()[5]) for line in lines]
                     )
                 elif aggregation_function == "min":
                     image_confidence = min(
-                        [float(line.strip().split()[-1]) for line in lines]
+                        [float(line.strip().split()[5]) for line in lines]
                     )
                 elif aggregation_function == "mean":
                     object_confidences_scores = [
-                        float(line.strip().split()[-1]) for line in lines
+                        float(line.strip().split()[5]) for line in lines
                     ]
                     image_confidence = sum(object_confidences_scores) / len(
                         object_confidences_scores
                     )
                 elif aggregation_function == "sum":
                     object_confidences_scores = [
-                        float(line.strip().split()[-1]) for line in lines
+                        float(line.strip().split()[5]) for line in lines
                     ]
                     image_confidence = sum(object_confidences_scores)
                 else:
@@ -569,22 +573,22 @@ def strategy_top_confidence(
                 # If the file is not empty, compute the image confidence score
                 if aggregation_function == "max":
                     image_confidence = max(
-                        [float(line.strip().split()[-1]) for line in lines]
+                        [float(line.strip().split()[5]) for line in lines]
                     )
                 elif aggregation_function == "min":
                     image_confidence = min(
-                        [float(line.strip().split()[-1]) for line in lines]
+                        [float(line.strip().split()[5]) for line in lines]
                     )
                 elif aggregation_function == "mean":
                     object_confidences_scores = [
-                        float(line.strip().split()[-1]) for line in lines
+                        float(line.strip().split()[5]) for line in lines
                     ]
                     image_confidence = sum(object_confidences_scores) / len(
                         object_confidences_scores
                     )
                 elif aggregation_function == "sum":
                     object_confidences_scores = [
-                        float(line.strip().split()[-1]) for line in lines
+                        float(line.strip().split()[5]) for line in lines
                     ]
                     image_confidence = sum(object_confidences_scores)
                 else:
@@ -704,6 +708,8 @@ def strategy_random(
             f"random strategy !"
         )
     path_list.sort()
+    print('I am setting the seed at',seed)
+    random.seed(seed)
     output_list = random.sample(path_list, n)
     output_list.sort()
     return output_list
