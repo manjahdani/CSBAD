@@ -33,7 +33,7 @@ def build_val_folder(cam_week_pairs, base_folder, labels_folder, extension, val_
         cam, week = pair['cam'], pair['week']
         print(f"Starting copy validation set for cam ${cam} and week ${week}")
         bank_folder = os.path.join(base_folder, f"cam{cam}", f"week{week}", "bank")
-        labels_folder = os.path.join(bank_folder, f"labels_{teacher}")
+        labels_folder = os.path.join(bank_folder, f"labels_yolov8x6")
         validation_set = list_files_without_extensions(
             bank_folder + "/images", extension=extension
         )[-val_samples_per_cam:]
@@ -91,9 +91,8 @@ def parallel_copy(index, in_folder, out_folder, imgExtension, labelsFolder):
     """
     images = os.listdir(os.path.join(in_folder, "images")) # Source of the bank images
     labels = os.listdir(os.path.join(in_folder, labelsFolder)) # Source of the bank of labels
-
-    print(f"Copying {len(index)} images from",os.path.join(in_folder, "images"), f"containing {len(images)} images and labels {len(labels)}")
-
+    print(f"Copying {len(index)} images from", os.path.join(in_folder, "images"), f"containing {len(images)} images and from labels folder ", os.path.join(in_folder, labelsFolder),f"contaning {len(labels)} labels")
+    
     os.makedirs(os.path.join(out_folder, "images"), exist_ok=True) # Create image directory in out_folder if it doesn't exist in out_folder
     os.makedirs(os.path.join(out_folder, "labels"), exist_ok=True) # Create labels directory in out_folder if it doesn't exist in out_folder
 
