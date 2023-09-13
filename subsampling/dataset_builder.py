@@ -33,7 +33,7 @@ def build_val_folder(cam_week_pairs, base_folder, labels_folder, extension, val_
         cam, week = pair['cam'], pair['week']
         print(f"Starting copy validation set for cam ${cam} and week ${week}")
         bank_folder = os.path.join(base_folder, f"cam{cam}", f"week{week}", "bank")
-        labels_folder = os.path.join(bank_folder, f"labels_yolov8x6")
+        labels_folder = os.path.join(bank_folder, f"labels_{teacher}")
         validation_set = list_files_without_extensions(
             bank_folder + "/images", extension=extension
         )[-val_samples_per_cam:]
@@ -66,7 +66,7 @@ def build_train_folder(config):
         labels_folder = os.path.join(bank_folder, f"labels_{config.teacher}")
         image_folder = bank_folder + "/images"
         config.strategy.image_folder_path=image_folder
-        config.strategy.image_labels_path=os.path.join(bank_folder,f"labels_yolov8n_w_conf")
+        config.strategy.image_labels_path=os.path.join(bank_folder,f"labels_{config.student}_w_conf")
         subsample_names = call(config.strategy)
         parallel_copy(
             subsample_names,

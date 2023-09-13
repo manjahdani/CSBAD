@@ -9,7 +9,7 @@ import torch
 sys.path.append(os.path.join(sys.path[0], "yolov8", "ultralytics"))
 from ultralytics import YOLO
 
-
+COCO_MODELS=['yolov8n','yolov8x6','yolov8s','yolov8l','yolov8m']
 def handle_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -54,6 +54,10 @@ def generate_pseudo_labels():
     # model
     model = YOLO(f"{args.model_name}.pt", type="v8")
 
+    if args.model_name not in COCO_MODELS:
+        print("NOT COCO MODEL, double check the output")
+    else:
+        print("USING COCO CLASES")
     # images
     img_dir = f"{args.folder}/images"
     imgs = sorted(glob.glob(os.path.join(img_dir, f"*.{args.extension}")))
@@ -84,11 +88,18 @@ def generate_pseudo_labels():
         confs = results[0].boxes.conf
         str = ""
         for cls, box, conf in zip(classes, boxes, confs):
-            if cls in vehicules:
+            if(args.model_name in COCO_MODELS):
+                if cls in vehicules:
+                    if not args.output_conf:
+                        str += f"0 {box[0]} {box[1]} {box[2]} {box[3]}\n"
+                    else:
+                        str += f"0 {box[0]} {box[1]} {box[2]} {box[3]} {conf}\n"
+            else:
                 if not args.output_conf:
                     str += f"0 {box[0]} {box[1]} {box[2]} {box[3]}\n"
                 else:
                     str += f"0 {box[0]} {box[1]} {box[2]} {box[3]} {conf}\n"
+
         with open(os.path.join(labels_dir, f"{img_name}.txt"), mode="w") as f:
             f.write(str)
 

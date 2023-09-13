@@ -1,7 +1,7 @@
 _target_: subsampling.strategies.thresholding_least_confidence
 
 image_folder_path: "${dataset.image_path}"
-image_labels_path: "${dataset.bank_path}/labels_yolov8n_w_conf"
+image_labels_path: "${dataset.bank_path}/labels_${student}_w_conf"
 n: ${n_samples}
 aggregation_function: "max"
 sampling_rate: 0.10

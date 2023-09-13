@@ -19,7 +19,7 @@ elif __name__ == 'testing.inference':
     from ultralytics import YOLO
 
 # NAMING CONVENTION:
-# {Source_domain}_{Target_domain}_{Student}_{Teacher}_{Strategy}_{Active-Learning-Setting}_{Total_Samples}
+# {Source_domain}_{Target_domain}_{Student}_{Teacher}_{Strategy}_{Active-Learning-Setting}_{Total_Samples} # to add _{Iteration_Level}_{Epochs}_{Validation_Set}
 # Finer-granularity can be expected as
 # {Source_domain} = {dataset}-{domain}-{period}
 #
@@ -85,7 +85,7 @@ def build_run_info(weight, dataset_path, project, summary):
         }
 
 def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base_data_yaml, task, target_domains):
-    # Check if GPU is available
+    #Check if GPU is available
     if torch.cuda.is_available():
         device = "cuda:0"  # Use GPU
     else:
@@ -134,7 +134,7 @@ def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base
                 target_domain_path = os.path.join(dataset_path,target_domain)
                 build_yaml_file(base_data_yaml, target_domain_path)
                 model = YOLO(run['model'])
-                results = model.val(data=TMP_DATA_YAML, task=task,device=device)
+                results = model.val(data=TMP_DATA_YAML, task=task, device=device)
                 
                 if len(results) == len(METRICS):
                     with open(csv_path, 'a+') as f:
@@ -165,8 +165,7 @@ def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base
     return runs
 
 def build_yaml_file(base_file, dataset):
-    print(base_file)
-    print('dataset',dataset)
+
     lines_to_write = []
     with open(base_file, 'r') as f:
         lines = f.readlines()

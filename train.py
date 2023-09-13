@@ -79,8 +79,8 @@ def generate_cameras_pairs(input_string):
     week_index = input_string.index('-week')
 
     # Get the cameras and weeks as lists of characters
-    cameras = input_string[dash_index+4:week_index].split('e')
-    weeks = input_string[week_index+5:].split('e')
+    cameras = input_string[dash_index+4:week_index].split('o')
+    weeks = input_string[week_index+5:].split('o')
 
     # Check that the number of cameras is equal to the number of weeks
     if len(cameras) != len(weeks):

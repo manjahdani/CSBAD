@@ -1,7 +1,11 @@
 _target_: subsampling.strategies.strategy_least_confidence
 
+image_folder_path: "${dataset.image_path}"
 image_labels_path: "${dataset.bank_path}/labels_yolov8n_w_conf"
-aggregation_function: "min"
+aggregation_function: "max"
+
 n: ${n_samples}
 
-name: "least-confidence_${strategy.aggregation_function}_pool-based_${n_samples}"
+name: "least-confidence-max_pool-based_${n_samples}"
+
+

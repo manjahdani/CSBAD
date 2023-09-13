@@ -43,7 +43,7 @@ def uniform_stream_based(
         )
     path_list.sort()
     np.random.seed(seed)
-    print("I used the seed :", seed)
+    
     rand_array = np.random.uniform(0, 1, len(path_list))
     output_list = [
         path_list[i]
@@ -138,8 +138,6 @@ def thresholding_least_confidence(
     Returns:
     - images_to_label: list of strings, paths to the .txt files with the images to be labeled
     """
-    print("I am using this path",image_labels_path)
-    print("I am using those parameters", n,aggregation_function,warmup_length,sampling_rate)
     txt_files = [filename for filename in os.listdir(image_labels_path)]
     if n <= 0:
         raise SamplingException(
@@ -195,7 +193,7 @@ def thresholding_least_confidence(
 
     # Get N-first images with a confidence lower than the threshold
     images_to_label = [os.path.splitext(img)[0] for img, _ in low_confidence_images[:n]]
-    print("I return this", images_to_label)
+    
     return images_to_label
 
 
@@ -280,7 +278,7 @@ def thresholding_top_confidence(
     # Get N-first images with a confidence lower than the threshold
     images_to_label = [os.path.splitext(img)[0] for img, _ in top_confidence_images[:n]]
 
-    print(images_to_label)
+    
     return images_to_label
 
 
@@ -618,8 +616,6 @@ def strategy_n_first(
     :param n: number of frames to select
     :return output_list: a list containing the selected images path
     """
-    print(image_folder_path)
-    print(imgExtension)
     path_list = list_files_without_extensions(
         image_folder_path, extension=imgExtension
     )[0:-val_size]
@@ -634,7 +630,6 @@ def strategy_n_first(
         )
     path_list.sort()
     output_list = path_list[:n]
-    print('outputlist',output_list)
     return output_list
 
 
@@ -708,7 +703,6 @@ def strategy_random(
             f"random strategy !"
         )
     path_list.sort()
-    print('I am setting the seed at',seed)
     random.seed(seed)
     output_list = random.sample(path_list, n)
     output_list.sort()
@@ -891,6 +885,7 @@ def strategy_frequency(
     imgExtension: str,
     n_groups: int = 10,
     n: int = DEFAULT_SUB_SAMPLE,
+    **kwargs
 ):
     """
     : param image_folder_path: path to the bank image folder
@@ -948,7 +943,7 @@ def strategy_frequency(
             int(dis[i])
         )
         selected_images = selected_images.append(to_select)
-    print(selected_images)
+    
     return list(selected_images.index)
 
 

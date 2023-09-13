@@ -1,6 +1,7 @@
 _target_: subsampling.strategies.strategy_frequency
 
 image_folder_path: "${dataset.image_path}"
+image_labels_path: "${dataset.bank_path}/labels_${student}_w_conf"
 bank_folder_path: "${dataset.bank_path}"
 imgExtension: "${dataset.extension}"
 n_groups: 10

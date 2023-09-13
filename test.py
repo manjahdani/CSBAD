@@ -70,9 +70,9 @@ if __name__ == "__main__":
             args.run_prefix,args.csv_path, data_names, args.template, args.folder)
 
 
-    print('3. Plotting graphs')
-    plots_dir = os.path.join(DEFAULT_PROJECT_DIR, args.project, "plots")
-    if not os.path.isdir(plots_dir):
-        os.makedirs(plots_dir)
+    # print('3. Plotting graphs')
+    # plots_dir = os.path.join(DEFAULT_PROJECT_DIR, args.project, "plots")
+    # if not os.path.isdir(plots_dir):
+    #     os.makedirs(plots_dir)
 
-    plot.main(args.csv_path, plots_dir)  # <- plotting
+    # plot.main(args.csv_path, plots_dir)  # <- plotting

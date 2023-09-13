@@ -7,4 +7,4 @@ n: ${n_samples}
 movement_percent: 90
 difference_ratio: 4.
 
-name: "movement_${n_samples}"
+name: "movement-${movement_percent}-${difference_ratio}_${n_samples}"
