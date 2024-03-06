@@ -46,7 +46,7 @@ def main(run_prefix, csv_path, datasets, base_data_yaml, task):
                             'source_dataset', 'source_domain','source_period',
                             'target_domain', #@FIXME Should include target_dataset and target_period
                             'student', 'teacher', 
-                            'epochs', 'best/epoch', 
+                            'epochs', 'best/epoch','epochs_asked',
                             'strategy',
                             'setting', 
                             'samples', 
@@ -92,7 +92,7 @@ def main(run_prefix, csv_path, datasets, base_data_yaml, task):
                     writer.writerow(['cocoyolo', 
                                      run_prefix, run['data-name'], "undefined",
                                      run['data-name'],
-                                     "null","null",
+                                     "null","null","null",
                                      0, 
                                      0, 
                                      run['model'], "null", 0, *list(results.values())])
