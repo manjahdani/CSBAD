@@ -20,8 +20,9 @@ student: 'yolov8n'
 
 n_samples: 25   
 
+training_mode: "normal" # ALTERNATIVES ["normal", "cst_maturity"]
+N_streams: null # TO BE INPUT IF training_mode == cst_maturity 
 
-variable_epochs: False
 cam_week_pairs: null #Filled during launch
 
 seed: 0
