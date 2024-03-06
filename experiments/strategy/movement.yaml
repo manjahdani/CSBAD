@@ -1,10 +1,10 @@
 _target_: subsampling.strategies.strategy_dense_optical_difference
 
 image_folder_path: "${dataset.image_path}"
-imgExtension: "${dataset.extension}"
-val_size: ${val.val_set_size}
+imgExtension: null #To be filled
+#image_labels_path: "${dataset.bank_path}/labels_yolov8n_w_conf"
+#difference_ratio: 4.0
+#val_size: ${val.val_set_size}
 n: ${n_samples}
-movement_percent: 90
-difference_ratio: 4.
-
-name: "movement-${movement_percent}-${difference_ratio}_${n_samples}"
+name: "movement-${difference_ratio}_${n_samples}"
+#movement_percent: 90

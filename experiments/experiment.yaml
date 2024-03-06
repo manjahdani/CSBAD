@@ -10,21 +10,25 @@ defaults:
   - train: train        # no changes here
   - model: yolov8       # no changes here
 
-teacher: 'yolov8x6'
-student: 'yolov8n'
-n_samples: 25           # your strategy number of samples: [25, 50, 75, 100]
 
 # For WALT dataset
-path_walt: "/home/dani/data/WALT-challenge" # your path root folder
+data_root_folder: "/home/dani/data/WALT-challenge" # your path root folder
 
+
+teacher: 'yolov8x6'
+student: 'yolov8n'
+
+n_samples: 25   
+
+
+variable_epochs: False
 cam_week_pairs: null #Filled during launch
+
 seed: 0
-cam_walt: 1                             # camera number
-week_walt: 1                            # week number
-# For AI-city dataset
-path_ai-city: "/home/dani/data/AI-city-challenge"     # your path root folder
-scene_ai-city: "05"                     # scene number
-cam_ai-city: "016"                      # camera number
+cam: 1                             # camera number
+week: 1                            # week number
+
+epochs: 100
 
 # no changes here
 project_dir: "${hydra:runtime.cwd}"

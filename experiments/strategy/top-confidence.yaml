@@ -2,6 +2,7 @@ _target_: subsampling.strategies.strategy_top_confidence
 
 image_folder_path: "${dataset.image_path}"
 image_labels_path: "${dataset.bank_path}/labels_${student}_w_conf"
+imgExtension: null #To be filleds
 aggregation_function: "max"
 n: ${n_samples}
 

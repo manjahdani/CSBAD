@@ -1,6 +1,7 @@
 _target_: subsampling.strategies.bernoulli_top_confidence
 
 image_labels_path: "${dataset.bank_path}/labels_yolov8n_w_conf"
+imgExtension: null #To be filled
 n: ${n_samples}
 aggregation_function: "max"
 b_sampling: 0.04

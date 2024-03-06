@@ -2,7 +2,7 @@ _target_: subsampling.strategies.strategy_n_first
 
 image_folder_path: "${dataset.image_path}"
 image_labels_path: "${dataset.bank_path}/labels_yolov8n_w_conf"
-imgExtension: "${dataset.extension}"
+imgExtension: null #To Be Filled
 val_size: ${val.val_set_size}
 n: ${n_samples}
 
