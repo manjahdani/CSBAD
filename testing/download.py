@@ -8,6 +8,7 @@ import argparse
 import wandb
 from tabulate import tabulate
 from tqdm import tqdm
+import json
 
 import pandas as pd 
 
@@ -18,7 +19,7 @@ class Downloader:
     def __init__(self, entity, project):
         self.entity = entity
         self.project = project
-        self.api = wandb.Api(timeout=100)
+        self.api = wandb.Api(timeout=110)
         self.runs_url = f'https://wandb.ai/{entity}/{project}/runs/'
 
 
@@ -29,7 +30,7 @@ class Downloader:
         if query_filter:
             finished_query = self.api.runs(f"{self.entity}/{self.project}", {
                 "display_name": {"$regex": f".*{query_filter}.*"}
-            }, per_page = 4)
+            }, per_page = 2)
         else:
             finished_query = self.api.runs(f"{self.entity}/{self.project}", per_page = 4)
         finished_query[0]
@@ -80,17 +81,32 @@ class Downloader:
             except Exception as e:
                 print(f'Could not download {run} :', e)
 
+    def unnest_dict(d, parent_key='', sep='.'):
+        items = []
+        for k, v in d.items():
+            new_key = f"{parent_key}{sep}{k}" if parent_key else k
+            if isinstance(v, dict):
+                items.extend(Downloader.unnest_dict(v, new_key, sep=sep).items())
+            elif isinstance(v, list):
+                for idx, item in enumerate(v):
+                    if isinstance(item, dict):
+                        items.extend(Downloader.unnest_dict(item, f"{new_key}[{idx}]", sep=sep).items())
+                    else:
+                        items.append((f"{new_key}[{idx}]", item))
+            else:
+                items.append((new_key, v))
+        return dict(items)
+
+
 
     def save_summary(self, runs, download_dir = DEFAULT_DOWNLOAD_DIR, project = 'results'):
         summary_list, config_list, name_list = [], [], []
-        for run in runs: 
-            summary_list.append(run.summary._json_dict)
-            config_list.append(
-                {k: v for k,v in run.config.items()
-                if not k.startswith('_')})
-            
-            name_list.append(run.name)
 
+        for run in runs:
+            summary_list.append(run.summary._json_dict)
+            config_list.append(json.dumps((Downloader.unnest_dict(run.config))))
+            name_list.append(run.name)
+        
         runs_df = pd.DataFrame({
             "summary": summary_list,
             "config": config_list,
