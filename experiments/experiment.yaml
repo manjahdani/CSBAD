@@ -3,9 +3,7 @@ defaults:
   # change for the dataset name you want to use
   # either WALT or AI-city
   - dataset: WALT
-  # change for the strategy name you want to use
-  # either random or n-first
-  - strategy: random 
+  - strategy: random    
   - val: val            # no changes here
   - train: train        # no changes here
   - model: yolov8       # no changes here
@@ -18,14 +16,15 @@ data_root_folder: "/home/dani/data/WALT-challenge" # your path root folder
 teacher: 'yolov8x6'
 student: 'yolov8n'
 
-n_samples: 25   
+n_samples: 25
 
 training_mode: "normal" # ALTERNATIVES ["normal", "cst_maturity"]
 N_streams: null # TO BE INPUT IF training_mode == cst_maturity 
 
 cam_week_pairs: null #Filled during launch
 
-seed: 0
+
+seed: 0                            # seed for random strategies
 cam: 1                             # camera number
 week: 1                            # week number
 
