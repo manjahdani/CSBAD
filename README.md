@@ -1,28 +1,40 @@
-# Stream-Based Active Distillation for Scalable Model Deployment
+# Clustered Stream-Based Active Distillation for Scalable Model Deployment
 
-[[paper]](https://openaccess.thecvf.com/content/CVPR2023W/L3D-IVU/papers/Manjah_Stream-Based_Active_Distillation_for_Scalable_Model_Deployment_CVPRW_2023_paper.pdf)[[test_set_WALT_cam1]](https://universe.roboflow.com/sbad/walt_cam1_test_set) [[test_set_WALT_cam2]](https://universe.roboflow.com/sbad/walt_cam2_test_set)[[poster]](https://drive.google.com/file/d/1C240nyjE7iUKLqe-sycxGSnn2jnoOFhq/view?usp=drive_link)
+This project introduces a novel approach to model distillation, leveraging stream-based active learning for efficient and scalable deployment across diverse datasets. Our methodology is detailed in our [paper](https://openaccess.thecvf.com/content/CVPR2023W/L3D-IVU/papers/Manjah_Stream-Based_Active_Distillation_for_Scalable_Model_Deployment_CVPRW_2023_paper.pdf), with practical applications demonstrated through the WALT dataset.
 
 ![Pipeline](images/SBAD-transparent.png)
 
 ## Table of Contents
-1. [Installation](#installation)
-2. [Datasets](#datasets)
-3. [Getting Started](#getting-started)
-4. [Testing](#testing)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Datasets](#datasets)
+- [Getting Started](#getting-started)
+- [Configuration](#configuration)
+- [Testing](#testing)
+- [FAQs](#faqs)
+
 
 ---
 
+## Prerequisites <a name="prerequisites"></a>
+Before beginning the installation process, ensure you have:
+- A Linux 20.04 system.
+- An active [wandb](https://wandb.ai/) account for experiment tracking.
+- Conda or virtualenv prepared on your machine.
+- Videos dataset split according to the Dataset section of at least 5000 samples per image
+
+
 ## Installation <a name="installation"></a>
 
-The code was developed using Linux 20.04. 
+The code was developed under Linux 20.04. 
 
 ### Setup your virtual environment 
 
 We recommend working in a virtualenv or conda environment.
 
 ```bash
-conda create -y --name SBAD python pip
-conda activate SBAD
+conda create -y --name CSBAD python pip
+conda activate CSBAD
 ```
 ### Requirements
 
@@ -46,23 +58,21 @@ wandb login
 
 ## Datasets <a name="datasets"></a>
 
-This is the required dataset structure :
+Required dataset structure :
 
 ![Dataset Structure](images/traill22_dataset_structure.svg)
 
-Slight modifications to the structure are possible, but should be configured appropriately in the experimentation configuration.
+Modifications to this structure are permissible but require appropriate configuration adjustments.
 
-Here's How we used WALT :
+Ensure your dataset adheres to the following structure:
 
-- WALT
-
-```
-WALT-challenge
+Dataset
 ├── cam{1}
 │   ├── week{1}
 │   │   └── bank
 │   │   │   ├── images
-│   │   │   └── labels
+│   │   │   └── labels_${STUDENT-MODEL}_w_conf 
+        |   └── labels_${TEACHER-MODEL} 
 |   |   └── test
 │   │       ├── images
 │   │       └── labels
@@ -73,37 +83,6 @@ WALT-challenge
 └── cam{j}
     └── ...
 ```
-- AI-city
-```
-AI-city
-├── S01c011
-│   ├── bank
-│   │   ├── images
-│   │   └── labels
-│   ├── test
-│   │   ├── images
-│   │   └── labels
-.
-└── S{i}c{j}
-    └── ...
-```
-- Your Dataset
-```
-Dataset
-├── bank
-│   ├── images
-│   └── labels
-├── test
-│   ├── images
-│   └── labels
-├── train (auto generated through sampling)
-│   ├── images
-│   └── labels
-└── val (auto generated through sampling)
-    ├── images
-    └── labels
-```
-
 
 ## 3. Getting Started <a name="getting-started"></a>
 
@@ -114,10 +93,10 @@ To generate the pseudo labels, execute the following command:
 ```bash
 python generate_pseudo_labels.py --folder "YOURPATH/WALT"
 
-OPTIONAL:
---extension #"jpg-or-png"
---model-name #"yolov8n,yolov8s,yolov8m,yolov8l,yolov8x6" or any custom model
---output-conf #flag to produce labels with confidence, only useful for strategies 
+OPTIONS:
+--extension "jpg" or "png"
+--model-name "yolov8n, yolov8s, yolov8m, yolov8l, yolov8x6" or any custom model
+--output-conf # Produce labels with confidence, useful for confidence_based strategies
 
 ```
 *Note:* The 'bank' folder must contain an 'images' folder with all the images. If you are on Windows, only use `"` and **not** `'`.
@@ -159,8 +138,17 @@ The logs and outputs of the runs are stored in the `output` folder.
 >**IMPORTANT !**
 >
 > We use a specific run naming format to track the experiments in wandb and run testing. We do that using the name attribute in the dataset config file. Look at `experiments/dataset/WALT.yaml` for an example.
->
-> If you add parameters during training, make a note of it somewhere. For example if you use a batch number of 32 instead of the default 16, set your run name to : `S05c016-firstn-100-batch-8`. You should add this behavior to your hydra config files if you use your own dataset and experimentation config.
+> NAMING CONVENTION: {Source_domain}_{Target_domain}_{Student}_{Teacher}_{Strategy}>_{Active-Learning-Setting}_{Total_Samples}{Iteration_Level}_{Epochs}_> >_{Validation_Set} Finer-granularity can be expected as {Source_domain} = {dataset}->{domain}-{period}
+ 
+
+#### Configure a particular training 
+
+
+python train.py --multirun n_samples=300 cam=1o2o3 week=1o1o5 strategy=thresh-top-confidence student=yolov8n teacher=yolov8m
+
+This will train by sampling 100 samples from camera 1,2,3 using thresh-top-confindence based on the student_yolov8n confidence. The teacher model generates afterwards a yolov8x6 teacher. 
+
+
 
 ## 4. Testing <a name="testing"></a>
 
@@ -210,3 +198,20 @@ python testing/plot.py --csv_path ./testdir/WALT/inference_results.csv --save_pa
 ```
 
 Use the `--help` flag for more information on the usage of each script.
+
+
+## ANNEX  - MATERIALS - Test Set Details for the WALT Dataset
+
+Below is a summary of the test set details for the WALT dataset, including image count, size, and links to access each camera's test set on Roboflow. To access the dataset, append the specified path to this preamble: `https://universe.roboflow.com/sbad-dvvax`.
+
+| CAM | SAMPLES | INSTANCES | IMG SIZE  | ROBOFLOW Link |
+|-----|---------|-----------|-----------|---------------|
+| 1   | 300     | 2133      | 4000x3000 | [sbad_cam1_test_set/dataset/3](https://universe.roboflow.com/sbad-dvvax/sbad_cam1_test_set/dataset/3) |
+| 2   | 300     | 1252      | 2000x1500 | [sbad_cam2_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam2_test_set/dataset/1) |
+| 3   | 300     | 1475      | 4000x3000 | [sbad_cam3_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam3_test_set/dataset/1) |
+| 4   | 50      | 267       | 2048x2048 | [sbad_cam4_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam4_test_set/dataset/1) |
+| 5   | 300     | 210       | 990x990   | [sbad_cam5_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam5_test_set/dataset/1) |
+| 6   | 100     | 1027      | 990x990   | [sbad_cam6_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam6_test_set/dataset/1) |
+| 7   | 100     | 2709      | 990x990   | [sbad_cam7_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam7_test_set/dataset/1) |
+| 8   | 100     | 992       | 990x990   | [sbad_cam8_test_set/dataset/2](https://universe.roboflow.com/sbad-dvvax/sbad_cam8_test_set/dataset/2) |
+| 9   | 300     | 2512      | 4000x3000 | [sbad_cam9_test_set-akhti/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam9_test_set-akhti/dataset/1) |

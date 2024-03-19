@@ -10,7 +10,7 @@ import sys
 import time
 from tabulate import tabulate
 import torch
-
+import re
 if __name__ == '__main__':
     sys.path.append(os.path.join(sys.path[0], '..', "yolov8", "ultralytics"))
     from ultralytics import YOLO
@@ -46,6 +46,15 @@ def get_runs_summary(weights_path, project, wandb_project_name):
         try:
             run_summary = json.loads(line.split('"')[1].replace("'", '"'))
             run_name = line.strip('\n').split(',')[-1]
+            # Search for 'epochs' in the config part of the line
+            match = re.search(r"'epochs': (\d+)", line)
+            if match:
+                epochs = int(match.group(1))
+            else:
+                # Default to None or an appropriate value if 'epochs' not found
+                epochs = None
+            # Add 'epochs_asked' to run_summary
+            run_summary['epochs_asked'] = epochs
             summary_processed[run_name] = run_summary
         except Exception as e:
             print("ERROR, Fix this first --->", line)
@@ -79,6 +88,7 @@ def build_run_info(weight, dataset_path, project, summary):
             'strategy': parts[3],
             'epochs': summary[run_name]['_step'],
             'best/epoch': summary[run_name]['best/epoch'],
+            'epochs_asked':summary[run_name]['epochs_asked'],
             'setting':parts[4],
             'data':os.path.join(dataset_path, parts[0].split("-")[1]), #test_set path
             'samples': int(parts[5]),
@@ -94,7 +104,6 @@ def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base
     weights = get_weights(weights_path, project)
     summary = get_runs_summary(weights_path, project, wandb_project_name)
     runs = []
-    
     for weight in weights:
         info = build_run_info(weight, dataset_path, project, summary)
         if info:
@@ -110,7 +119,7 @@ def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base
                             'source_dataset', 'source_domain','source_period',
                             'target_domain', #@FIXME Should include target_dataset and target_period
                             'student', 'teacher', 
-                            'epochs', 'best/epoch', 
+                            'epochs', 'best/epoch', 'epochs_asked',
                             'strategy',
                             'setting', 
                             'samples', 
@@ -144,7 +153,8 @@ def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base
                                             target_domain, 
                                             run['student'],run['teacher'], 
                                             run['epochs'],
-                                            run['best/epoch'], 
+                                            run['best/epoch'],
+                                            run['epochs_asked'],
                                             run['strategy'],
                                             run['setting'], 
                                             run['samples'], 

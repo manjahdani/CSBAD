@@ -3,7 +3,7 @@ _target_: subsampling.strategies.strategy_frequency
 image_folder_path: "${dataset.image_path}"
 image_labels_path: "${dataset.bank_path}/labels_${student}_w_conf"
 bank_folder_path: "${dataset.bank_path}"
-imgExtension: "${dataset.extension}"
+imgExtension: null # To be filled
 n_groups: 10
 n: ${n_samples}
 

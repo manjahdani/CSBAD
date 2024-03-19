@@ -1,9 +1,0 @@
-data_path: "${path_ai-city}/S${scene_ai-city}c${cam_ai-city}"
-train_path: "train"
-bank_path: "${dataset.data_path}/bank"
-image_path: "${dataset.bank_path}/images"
-label_path: "${dataset.bank_path}/labels"
-extension: "png"
-
-basename: "AI-city"
-name: "${dataset.basename}-s${scene_ai-city}c${cam_ai-city}"

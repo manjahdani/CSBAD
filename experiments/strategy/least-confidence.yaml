@@ -2,6 +2,7 @@ _target_: subsampling.strategies.strategy_least_confidence
 
 image_folder_path: "${dataset.image_path}"
 image_labels_path: "${dataset.bank_path}/labels_yolov8n_w_conf"
+imgExtension: null #To be filled
 aggregation_function: "max"
 
 n: ${n_samples}

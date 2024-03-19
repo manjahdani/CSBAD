@@ -56,8 +56,8 @@ def uniform_stream_based(
 def thresholding_object_count(
     image_labels_path: str,
     n: int = DEFAULT_SUB_SAMPLE,
-    warmup_length=750,
-    sampling_rate=0.05,
+    warmup_length=720,
+    sampling_rate=0.1,
     **kwargs,
 ) -> list:
     """
@@ -118,9 +118,9 @@ def thresholding_object_count(
 def thresholding_least_confidence(
     image_labels_path: str,
     n: int = DEFAULT_SUB_SAMPLE,
-    aggregation_function: str = "min",
-    warmup_length=750,
-    sampling_rate=0.05,
+    aggregation_function: str = "max",
+    warmup_length=720,
+    sampling_rate=0.1,
     **kwargs,
 ) -> list:
     """
@@ -193,7 +193,7 @@ def thresholding_least_confidence(
 
     # Get N-first images with a confidence lower than the threshold
     images_to_label = [os.path.splitext(img)[0] for img, _ in low_confidence_images[:n]]
-    
+
     return images_to_label
 
 
@@ -278,7 +278,6 @@ def thresholding_top_confidence(
     # Get N-first images with a confidence lower than the threshold
     images_to_label = [os.path.splitext(img)[0] for img, _ in top_confidence_images[:n]]
 
-    
     return images_to_label
 
 

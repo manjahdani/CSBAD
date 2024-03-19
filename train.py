@@ -22,7 +22,19 @@ def train(config):
     else:
         device = None  # Use CPU
 
-    config.cam_week_pairs = generate_cameras_pairs(config.dataset.name)
+    config.cam_week_pairs, n_cameras = generate_cameras_pairs(config.dataset.name)
+
+    if(config.training_mode=="cst_maturity"):
+        if (config.N_streams != "null"):
+            print(f"Mode: const maturity, base_epoch: {config.model.epochs}, streams: {config.N_streams}, new epoch: {int(config.model.epochs * config.N_streams / n_cameras)}")
+
+            config.model.epochs = int(config.model.epochs*config.N_streams/n_cameras)
+           
+        else:
+            raise ValueError("For constant maturity study, 'N_streams' (total streams) is required.")
+
+
+        
 
     # Set the default device for tensors
     torch.cuda.set_device(device)
@@ -41,12 +53,13 @@ def train(config):
 
     # init model
     model = YOLO(config.model.weights, cmd_args=config.model)
-    # train model
+
+   # train model
     model.train(
         data="data.yaml",
         epochs=config.model.epochs,
         batch=config.model.batch,
-        device=device
+        device=device,
     )
 
     # finish the run and remove tmp folders
@@ -89,7 +102,7 @@ def generate_cameras_pairs(input_string):
     # Generate the output
     output = [{'cam': int(cam), 'week': int(week)} for cam, week in zip(cameras, weeks)]
     
-    return output
+    return output,len(cameras)
 
 
 if __name__ == "__main__":
