@@ -219,18 +219,18 @@ Below is a summary of the test set details for the WALT dataset, including image
 ## ANNEX  - MATERIALS - Illustration of the WALT Dataset
 <table>
   <tr>
-    <td align="center"><img src="images/cameras/cam1-min.jpg" width="300" height="200"><br /><sub>Cam 1</sub></td>
-    <td align="center"><img src="images/cameras/cam2-min.jpg" width="300" height="200"><br /><sub>Cam 2</sub></td>
-    <td align="center"><img src="images/cameras/cam3-min.jpg" width="300" height="200"><br /><sub>Cam 3</sub></td>
+    <td align="center"><img src="images/cameras/cam1-min.jpg" width="250" height="150"><br /><sub>Cam 1</sub></td>
+    <td align="center"><img src="images/cameras/cam2-min.jpg" width="250" height="150"><br /><sub>Cam 2</sub></td>
+    <td align="center"><img src="images/cameras/cam3-min.jpg" width="250" height="150"><br /><sub>Cam 3</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="images/cameras/cam4-min.jpg" width="300" height="200"><br /><sub>Cam 4</sub></td>
-    <td align="center"><img src="images/cameras/cam5-min.jpg" width="300" height="200"><br /><sub>Cam 5</sub></td>
-    <td align="center"><img src="images/cameras/cam6-min.jpg" width="300" height="200"><br /><sub>Cam 6</sub></td>
+    <td align="center"><img src="images/cameras/cam4-min.jpg" width="250" height="150"><br /><sub>Cam 4</sub></td>
+    <td align="center"><img src="images/cameras/cam5-min.jpg" width="250" height="150"><br /><sub>Cam 5</sub></td>
+    <td align="center"><img src="images/cameras/cam6-min.jpg" width="250" height="150"><br /><sub>Cam 6</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="images/cameras/cam7-min.jpg" width="300" height="200"><br /><sub>Cam 7</sub></td>
-    <td align="center"><img src="images/cameras/cam8-min.jpg" width="300" height="200"><br /><sub>Cam 8</sub></td>
-    <td align="center"><img src="images/cameras/cam9-min.jpg" width="300" height="200"><br /><sub>Cam 9</sub></td>
+    <td align="center"><img src="images/cameras/cam7-min.jpg" width="250" height="150"><br /><sub>Cam 7</sub></td>
+    <td align="center"><img src="images/cameras/cam8-min.jpg" width="250" height="150"><br /><sub>Cam 8</sub></td>
+    <td align="center"><img src="images/cameras/cam9-min.jpg" width="250" height="150"><br /><sub>Cam 9</sub></td>
   </tr>
 </table>
