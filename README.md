@@ -216,27 +216,21 @@ Below is a summary of the test set details for the WALT dataset, including image
 | 8   | 100     | 992       | 990x990   | [sbad_cam8_test_set/dataset/2](https://universe.roboflow.com/sbad-dvvax/sbad_cam8_test_set/dataset/2) |
 | 9   | 300     | 2512      | 4000x3000 | [sbad_cam9_test_set-akhti/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam9_test_set-akhti/dataset/1) |
 
-
-|     |     |     |
-|:---:|:---:|:---:|
-| ![Camera 1](images/cameras/cam1-min.jpg) | ![Camera 2](images/cameras/cam2-min.jpg) | ![Camera 3](images/cameras/cam3-min.jpg) |
-| ![Camera 4](images/cameras/cam4-min.jpg) | ![Camera 5](images/cameras/cam5-min.jpg) | ![Camera 6](images/cameras/cam6-min.jpg) |
-| ![Camera 7](images/cameras/cam7-min.jpg) | ![Camera 8](images/cameras/cam8-min.jpg) | ![Camera 9](images/cameras/cam9-min.jpg) |
-
+## ANNEX  - MATERIALS - Illustration of the WALT Dataset
 <table>
   <tr>
-    <td align="center"><img src="images/cameras/cam1-min.jpg" width="100" height="100"><br /><sub>Cam 1</sub></td>
-    <td align="center"><img src="images/cameras/cam2-min.jpg" width="100" height="100"><br /><sub>Cam 2</sub></td>
-    <td align="center"><img src="images/cameras/cam3-min.jpg" width="100" height="100"><br /><sub>Cam 3</sub></td>
+    <td align="center"><img src="images/cameras/cam1-min.jpg" width="200" height="200"><br /><sub>Cam 1</sub></td>
+    <td align="center"><img src="images/cameras/cam2-min.jpg" width="200" height="200"><br /><sub>Cam 2</sub></td>
+    <td align="center"><img src="images/cameras/cam3-min.jpg" width="200" height="200"><br /><sub>Cam 3</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="images/cameras/cam4-min.jpg" width="100" height="100"><br /><sub>Cam 4</sub></td>
-    <td align="center"><img src="images/cameras/cam5-min.jpg" width="100" height="100"><br /><sub>Cam 5</sub></td>
-    <td align="center"><img src="images/cameras/cam6-min.jpg" width="100" height="100"><br /><sub>Cam 6</sub></td>
+    <td align="center"><img src="images/cameras/cam4-min.jpg" width="200" height="200"><br /><sub>Cam 4</sub></td>
+    <td align="center"><img src="images/cameras/cam5-min.jpg" width="200" height="200"><br /><sub>Cam 5</sub></td>
+    <td align="center"><img src="images/cameras/cam6-min.jpg" width="200" height="200"><br /><sub>Cam 6</sub></td>
   </tr>
   <tr>
-    <td align="center"><img src="images/cameras/cam7-min.jpg" width="100" height="100"><br /><sub>Cam 7</sub></td>
-    <td align="center"><img src="images/cameras/cam8-min.jpg" width="100" height="100"><br /><sub>Cam 8</sub></td>
-    <td align="center"><img src="images/cameras/cam9-min.jpg" width="100" height="100"><br /><sub>Cam 9</sub></td>
+    <td align="center"><img src="images/cameras/cam7-min.jpg" width="200" height="200"><br /><sub>Cam 7</sub></td>
+    <td align="center"><img src="images/cameras/cam8-min.jpg" width="200" height="200"><br /><sub>Cam 8</sub></td>
+    <td align="center"><img src="images/cameras/cam9-min.jpg" width="200" height="200"><br /><sub>Cam 9</sub></td>
   </tr>
 </table>
