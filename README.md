@@ -215,3 +215,10 @@ Below is a summary of the test set details for the WALT dataset, including image
 | 7   | 100     | 2709      | 990x990   | [sbad_cam7_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam7_test_set/dataset/1) |
 | 8   | 100     | 992       | 990x990   | [sbad_cam8_test_set/dataset/2](https://universe.roboflow.com/sbad-dvvax/sbad_cam8_test_set/dataset/2) |
 | 9   | 300     | 2512      | 4000x3000 | [sbad_cam9_test_set-akhti/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam9_test_set-akhti/dataset/1) |
+
+
+|     |     |     |
+|:---:|:---:|:---:|
+| ![Camera 1](images/cameras/cam1-min.jpg) | ![Camera 2](images/cameras/cam2-min.jpg) | ![Camera 3](images/cameras/cam3-min.jpg) |
+| ![Camera 4](images/cameras/cam4-min.jpg) | ![Camera 5](images/cameras/cam5-min.jpg) | ![Camera 6](images/cameras/cam6-min.jpg) |
+| ![Camera 7](images/cameras/cam7-min.jpg) | ![Camera 8](images/cameras/cam8-min.jpg) | ![Camera 9](images/cameras/cam9-min.jpg) |
