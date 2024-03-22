@@ -27,9 +27,8 @@ def train(config):
     if(config.training_mode=="cst_maturity"):
         if (config.N_streams != "null"):
             print(f"Mode: const maturity, base_epoch: {config.model.epochs}, streams: {config.N_streams}, new epoch: {int(config.model.epochs * config.N_streams / n_cameras)}")
-
             config.model.epochs = int(config.model.epochs*config.N_streams/n_cameras)
-           
+            config.epochs=config.model.epochs
         else:
             raise ValueError("For constant maturity study, 'N_streams' (total streams) is required.")
 
