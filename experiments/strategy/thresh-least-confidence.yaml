@@ -1,0 +1,10 @@
+_target_: subsampling.strategies.thresholding_least_confidence
+
+image_folder_path: "${dataset.image_path}"
+image_labels_path: "${dataset.bank_path}/labels_${student}_w_conf"
+imgExtension: null #To be filled
+n: ${n_samples}
+aggregation_function: "max"
+sampling_rate: 0.1
+warmup_length: 720
+name: "thresholded-least-confidence-${strategy.aggregation_function}_stream-based_${n_samples}"

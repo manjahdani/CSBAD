@@ -1,0 +1,37 @@
+defaults:
+  - _self_
+  # change for the dataset name you want to use
+  # either WALT or AI-city
+  - dataset: WALT
+  - strategy: random    
+  - val: val            # no changes here
+  - train: train        # no changes here
+  - model: yolov8       # no changes here
+
+
+# For WALT dataset
+data_root_folder: "/home/dani/data/WALT-challenge" # your path root folder
+
+
+teacher: 'yolov8x6'
+student: 'yolov8n'
+
+n_samples: 25
+
+training_mode: "normal" # ALTERNATIVES ["normal", "cst_maturity"]
+N_streams: null # TO BE INPUT IF training_mode == cst_maturity 
+
+cam_week_pairs: null #Filled during launch
+
+
+seed: 0                            # seed for random strategies
+cam: 1                             # camera number
+week: 1                            # week number
+
+epochs: 100
+
+# no changes here
+project_dir: "${hydra:runtime.cwd}"
+hydra:
+  job:
+    chdir: true
