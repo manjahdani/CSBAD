@@ -1,6 +1,7 @@
-# Clustered Stream-Based Active Distillation for Scalable Model Deployment
+# Camera clustering for scalable stream-based active distillation
 
-This project introduces a novel approach to model distillation, leveraging stream-based active learning for efficient and scalable deployment across diverse datasets. Our methodology is detailed in our [paper](https://openaccess.thecvf.com/content/CVPR2023W/L3D-IVU/papers/Manjah_Stream-Based_Active_Distillation_for_Scalable_Model_Deployment_CVPRW_2023_paper.pdf), with practical applications demonstrated through the WALT dataset.
+This repository contains the link to test data as well as the code to replicate the experiments in ``Camera clustering for scalable stream-based active distillation". Our methodology and full project scope is detailed in our paper [paper](https://arxiv.org/abs/2404.10411). Some additional informations can be found in our Supplementary Materials document [https://drive.google.com/file/d/1Jutgzw-nT0-8b_B2lO-XXDmF8jjsljMM/view?usp=sharing](https://drive.google.com/file/d/1Jutgzw-nT0-8b_B2lO-XXDmF8jjsljMM/view?usp=sharing). You can also find a brief link below. 
+
 
 ![Pipeline](images/SBAD-transparent.png)
 
@@ -13,8 +14,69 @@ This project introduces a novel approach to model distillation, leveraging strea
 - [Testing](#testing)
 - [FAQs](#faqs)
 
-
 ---
+
+# MATERIALS - WALT Dataset
+
+The WALT Watch And Learn 2D Amodal Representation using Time-lapse Imagery (WALT) dataset is available through Carnegie Mellon University's official website at https://www.cs.cmu.edu/~walt/. Please note that accessing the full dataset requires acceptance of their license terms. Our group offers additional annotations solely for subsets of images from the test set used in our methods. We have secured a written agreement from Carnegie Mellon for this purpose. All uses of the dataset, including the additional annotations, must adhere to the licensing terms specified by Carnegie Mellon. 
+
+The WALT, captured by nine distinct cameras, offers a wide range of environmental settings. Figure below  showcases each camera’s viewpoint, highlighting the variety in visual conditions and challenges pertinent
+to object detection tasks.
+
+<table>
+  <tr>
+    <td align="center"><img src="images/cameras/cam1-min.jpg" width="250" height="150"><br /><sub>Cam 1</sub></td>
+    <td align="center"><img src="images/cameras/cam2-min.jpg" width="250" height="150"><br /><sub>Cam 2</sub></td>
+    <td align="center"><img src="images/cameras/cam3-min.jpg" width="250" height="150"><br /><sub>Cam 3</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="images/cameras/cam4-min.jpg" width="250" height="150"><br /><sub>Cam 4</sub></td>
+    <td align="center"><img src="images/cameras/cam5-min.jpg" width="250" height="150"><br /><sub>Cam 5</sub></td>
+    <td align="center"><img src="images/cameras/cam6-min.jpg" width="250" height="150"><br /><sub>Cam 6</sub></td>
+  </tr>
+  <tr>
+    <td align="center"><img src="images/cameras/cam7-min.jpg" width="250" height="150"><br /><sub>Cam 7</sub></td>
+    <td align="center"><img src="images/cameras/cam8-min.jpg" width="250" height="150"><br /><sub>Cam 8</sub></td>
+    <td align="center"><img src="images/cameras/cam9-min.jpg" width="250" height="150"><br /><sub>Cam 9</sub></td>
+  </tr>
+</table>
+
+# MATERIALS - Test Set Details for the WALT Dataset
+
+A subset of 1850 images was meticulously labeled to identify "vehicle" instances, resulting in 12,577 annotated instances. Table below summarizes the labeled dataset, providing insights into the annotation process and offering links to Roboflow for easy access to the data.
+To access the dataset, append the specified path to this preamble: `https://universe.roboflow.com/sbad-dvvax`.
+
+| CAM | ROBOFLOW Link |
+|-----|---------------|
+| 1   | [sbad_cam1_test_set/dataset/3](https://universe.roboflow.com/sbad-dvvax/sbad_cam1_test_set/dataset/3) |
+| 2   | [sbad_cam2_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam2_test_set/dataset/1) |
+| 3   | [sbad_cam3_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam3_test_set/dataset/1) |
+| 4   | [sbad_cam4_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam4_test_set/dataset/1) |
+| 5   | [sbad_cam5_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam5_test_set/dataset/1) |
+| 6   | [sbad_cam6_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam6_test_set/dataset/1) |
+| 7   | [sbad_cam7_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam7_test_set/dataset/1) |
+| 8   | [sbad_cam8_test_set/dataset/2](https://universe.roboflow.com/sbad-dvvax/sbad_cam8_test_set/dataset/2) |
+| 9   | [sbad_cam9_test_set-akhti/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam9_test_set-akhti/dataset/1) |
+
+
+# MATERIALS for Confirmation Bias 
+
+In our experiment, in section VI.B, "*Impact of Teacher size*", we manually annotated **96** images sampled by a **YOLOv8n^COCO** *Student* utilizing the `Least-Confidence` or `Top-Confidence` approach and subsequently compared the performance of these *Students* against scenarios in which a *Teacher* model pseudo-annotated the same set of images and a human. In Table [tab:roboflowLinks], we present the images sampled by each strategy, which we annotated, thereby creating the equivalent human annotations.
+
+
+### Table: Camera data strategies with corresponding Roboflow links
+URLs are relative to the preamble: [https://universe.roboflow.com/sbad-dvvax/](https://universe.roboflow.com/sbad-dvvax/).
+
+| Camera_id | Week | Strategy         | Roboflow link                                                                                                      |
+|-----------|------|------------------|--------------------------------------------------------------------------------------------------------------------|
+| 1         | 1    | `Top-Confidence` | [cam1_confbias_topconf96/dataset/3](https://universe.roboflow.com/sbad-dvvax/cam1_confbias_topconf96/dataset/3)    |
+| 1         | 1    | `Least-Confidence` | [cam1_confbias_leastconf96/dataset/3](https://universe.roboflow.com/sbad-dvvax/cam1_confbias_leastconf96/dataset/3) |
+| 2         | 2    | `Top-Confidence` | [cam2_confbias_topconf96/dataset/3](https://universe.roboflow.com/sbad-dvvax/cam2_confbias_topconf96/dataset/3)    |
+| 2         | 1    | `Least-Confidence` | [cam2_confbias_leastconf96/dataset/5](https://universe.roboflow.com/sbad-dvvax/cam2_confbias_leastconf96/dataset/5) |
+| 3         | 5    | `Top-Confidence` | [cam3_confbias_topconf96/dataset/2](https://universe.roboflow.com/sbad-dvvax/cam3_confbias_topconf96/dataset/2)    |
+| 3         | 5    | `Least-Confidence` | [cam3_confbias_leastconf96/dataset/3](https://universe.roboflow.com/sbad-dvvax/cam3_confbias_leastconf96/dataset/3) |
+
+
 
 ## Prerequisites <a name="prerequisites"></a>
 Before beginning the installation process, ensure you have:
@@ -200,37 +262,4 @@ python testing/plot.py --csv_path ./testdir/WALT/inference_results.csv --save_pa
 Use the `--help` flag for more information on the usage of each script.
 
 
-## ANNEX  - MATERIALS - Test Set Details for the WALT Dataset
 
-Below is a summary of the test set details for the WALT dataset, including image count, size, and links to access each camera's test set on Roboflow. To access the dataset, append the specified path to this preamble: `https://universe.roboflow.com/sbad-dvvax`.
-
-| CAM | SAMPLES | INSTANCES | IMG SIZE  | ROBOFLOW Link |
-|-----|---------|-----------|-----------|---------------|
-| 1   | 300     | 2133      | 4000x3000 | [sbad_cam1_test_set/dataset/3](https://universe.roboflow.com/sbad-dvvax/sbad_cam1_test_set/dataset/3) |
-| 2   | 300     | 1252      | 2000x1500 | [sbad_cam2_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam2_test_set/dataset/1) |
-| 3   | 300     | 1475      | 4000x3000 | [sbad_cam3_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam3_test_set/dataset/1) |
-| 4   | 50      | 267       | 2048x2048 | [sbad_cam4_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam4_test_set/dataset/1) |
-| 5   | 300     | 210       | 990x990   | [sbad_cam5_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam5_test_set/dataset/1) |
-| 6   | 100     | 1027      | 990x990   | [sbad_cam6_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam6_test_set/dataset/1) |
-| 7   | 100     | 2709      | 990x990   | [sbad_cam7_test_set/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam7_test_set/dataset/1) |
-| 8   | 100     | 992       | 990x990   | [sbad_cam8_test_set/dataset/2](https://universe.roboflow.com/sbad-dvvax/sbad_cam8_test_set/dataset/2) |
-| 9   | 300     | 2512      | 4000x3000 | [sbad_cam9_test_set-akhti/dataset/1](https://universe.roboflow.com/sbad-dvvax/sbad_cam9_test_set-akhti/dataset/1) |
-
-## ANNEX  - MATERIALS - Illustration of the WALT Dataset
-<table>
-  <tr>
-    <td align="center"><img src="images/cameras/cam1-min.jpg" width="250" height="150"><br /><sub>Cam 1</sub></td>
-    <td align="center"><img src="images/cameras/cam2-min.jpg" width="250" height="150"><br /><sub>Cam 2</sub></td>
-    <td align="center"><img src="images/cameras/cam3-min.jpg" width="250" height="150"><br /><sub>Cam 3</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="images/cameras/cam4-min.jpg" width="250" height="150"><br /><sub>Cam 4</sub></td>
-    <td align="center"><img src="images/cameras/cam5-min.jpg" width="250" height="150"><br /><sub>Cam 5</sub></td>
-    <td align="center"><img src="images/cameras/cam6-min.jpg" width="250" height="150"><br /><sub>Cam 6</sub></td>
-  </tr>
-  <tr>
-    <td align="center"><img src="images/cameras/cam7-min.jpg" width="250" height="150"><br /><sub>Cam 7</sub></td>
-    <td align="center"><img src="images/cameras/cam8-min.jpg" width="250" height="150"><br /><sub>Cam 8</sub></td>
-    <td align="center"><img src="images/cameras/cam9-min.jpg" width="250" height="150"><br /><sub>Cam 9</sub></td>
-  </tr>
-</table>
