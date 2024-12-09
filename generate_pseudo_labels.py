@@ -1,15 +1,12 @@
-#s
 import os
-import sys
 import glob
 import argparse
 from tqdm import tqdm
 import torch
-
-sys.path.append(os.path.join(sys.path[0], "yolov8", "ultralytics"))
 from ultralytics import YOLO
 
-COCO_MODELS=['yolov8n','yolov8x6','yolov8s','yolov8l','yolov8m']
+YOLO_MODELS=['yolov8n','yolov8x6','yolov8s','yolov8l','yolov8m',
+             'yolo11n','yolo11x','yolo11s','yolo11l','yolo11m']
 def handle_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -52,10 +49,10 @@ def generate_pseudo_labels():
     vehicules = [2, 5, 7]
 
     # model
-    model = YOLO(f"{args.model_name}.pt", type="v8")
+    model = YOLO(f"./models/{args.model_name}.pt")
 
-    if args.model_name not in COCO_MODELS:
-        print("NOT COCO MODEL, double check the output")
+    if args.model_name not in YOLO_MODELS:
+        print("NOT YOLO MODEL, double check the output")
     else:
         print("USING COCO CLASES")
     # images
@@ -88,7 +85,7 @@ def generate_pseudo_labels():
         confs = results[0].boxes.conf
         str = ""
         for cls, box, conf in zip(classes, boxes, confs):
-            if(args.model_name in COCO_MODELS):
+            if(args.model_name in YOLO_MODELS):
                 if cls in vehicules:
                     if not args.output_conf:
                         str += f"0 {box[0]} {box[1]} {box[2]} {box[3]}\n"
