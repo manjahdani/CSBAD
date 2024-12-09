@@ -1,8 +1,4 @@
 import os, os.path
-import glob
-import shutil
-from logging import warning
-import copy
 
 class SamplingException(Exception):
     pass
@@ -30,12 +26,12 @@ def list_files_without_extensions(path: str) -> list:
     """
 
     extension = find_file_extension(path)
-
     path_list = [
         os.path.splitext(filename)[0]
         for filename in os.listdir(path)
         if filename.endswith(extension)
     ]
+ 
     return path_list, extension
 
 
