@@ -3,7 +3,7 @@ defaults:
   # change for the dataset name you want to use
   # either WALT or AI-city
   - dataset: WALT
-  - strategy: random    
+  - strategy: uniform-random    
   - val: val            # no changes here
   - train: train        # no changes here
   - model: yolov8       # no changes here
@@ -13,8 +13,8 @@ defaults:
 data_root_folder: "/home/dani/data/WALT-challenge" # your path root folder
 
 
-teacher: 'yolov8x6'
-student: 'yolov8n'
+teacher: 'yolo11x'
+student: 'yolo11n'
 
 n_samples: 25
 
