@@ -10,7 +10,7 @@ import glob
 class SamplingException(Exception):
     pass
 
-def build_val_folder(cam_week_pairs, base_folder, labels_folder, val_set_size=300, teacher="yolov8x6"):
+def build_val_folder(cam_week_pairs, base_folder, labels_folder, val_set_size=300, teacher="yolo11"):
     assert len(cam_week_pairs) > 0, "At least one camera-week pair should be specified"
     val_samples_per_cam = val_set_size// len(cam_week_pairs)
     
@@ -37,7 +37,7 @@ def build_val_folder(cam_week_pairs, base_folder, labels_folder, val_set_size=30
 
 
         bank_folder = os.path.join(base_folder, f"cam{cam}", f"week{week}", "bank")
-        labels_folder = os.path.join(bank_folder, f"labels_yolov8x6")
+        labels_folder = os.path.join(bank_folder, f"labels_{teacher}")
         validation_set, extension = list_files_without_extensions(bank_folder + "/images")
         parallel_copy(
             validation_set[-val_samples_per_cam:],
@@ -68,7 +68,7 @@ def build_train_folder(config):
         labels_folder = os.path.join(bank_folder, f"labels_{config.teacher}")
         image_folder = bank_folder + "/images"
         config.strategy.image_folder_path=image_folder
-        config.strategy.image_labels_path=os.path.join(bank_folder,f"labels_yolov8n_w_conf")
+        config.strategy.image_labels_path=os.path.join(bank_folder,f"labels_{config.student}_w_conf")
         extension=find_file_extension(image_folder)
         config.strategy.imgExtension=extension
         subsample_names = call(config.strategy)
