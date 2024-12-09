@@ -1,7 +1,7 @@
-weights: "${project_dir}/yolov8/${student}.pt"
+weights: "${project_dir}/models/${student}.pt"
 name: "${dataset.name}_${student}_${teacher}_${strategy.name}"
 entity: "YourEntity" #TO CHANGE for your WANDB entity
-project: "${dataset.basename}"
+project: "{dataset.basename}" #TO CHANGE for your WANDB project
 epochs: ${epochs}
 batch: 16
 data: "${project_dir}/experiments/model/data.yaml"
