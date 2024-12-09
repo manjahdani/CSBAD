@@ -1,6 +1,6 @@
-import random
 from .utils import *
 from os.path import exists
+import numpy as np
 
 # Ignoring numpy warnings
 import warnings
@@ -219,8 +219,6 @@ def thresholding_top_confidence(
 
 def strategy_n_first(
     image_folder_path: str,
-    imgExtension: str,
-    val_size: int,
     n: int = DEFAULT_SUB_SAMPLE,
     **kwargs,
 ) -> list:
@@ -229,9 +227,9 @@ def strategy_n_first(
     :param n: number of frames to select
     :return output_list: a list containing the selected images path
     """
-    path_list = list_files_without_extensions(
-        image_folder_path, extension=imgExtension
-    )[0:-val_size]
+
+    path_list, _ = list_files_without_extensions(image_folder_path)
+
     if n <= 0:
         raise SamplingException(
             f"You must select a strictly positive number of frames to select"
