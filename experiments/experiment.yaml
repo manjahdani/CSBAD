@@ -13,8 +13,8 @@ defaults:
 data_root_folder: "/home/dani/data/WALT-challenge" # your path root folder
 
 
-teacher: 'yolo11x'
-student: 'yolo11n'
+teacher: 'yolov8x6'
+student: 'yolo8n'
 
 n_samples: 25
 
