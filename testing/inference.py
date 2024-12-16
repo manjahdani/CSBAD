@@ -1,6 +1,5 @@
 import argparse
 import csv
-import cv2
 import gc
 import json
 import logging
@@ -8,7 +7,6 @@ import os
 import pandas as pd
 import sys
 import time
-from tabulate import tabulate
 import torch
 import re
 if __name__ == '__main__':
@@ -36,7 +34,7 @@ TMP_DATA_YAML = os.path.join(BASE_PATH, 'data.yaml')
 
 METRICS = ['precision', 'recall', 'mAP50', 'mAP50-95', 'fitness']
 
-def get_runs_summary(weights_path, project, wandb_project_name):
+def get_runs_summary(weights_path, wandb_project_name):
     summary = os.path.join(os.path.abspath(weights_path), wandb_project_name + '.csv')
     with open(summary, 'r', encoding='utf-8') as f:
         lines = f.readlines()[1:]
@@ -87,8 +85,6 @@ def build_run_info(weight, dataset_path, project, summary):
             'teacher':  parts[2],
             'strategy': parts[3],
             'epochs': summary[run_name]['_step'],
-            'best/epoch': summary[run_name]['best/epoch'],
-            'epochs_asked':summary[run_name]['epochs_asked'],
             'setting':parts[4],
             'data':os.path.join(dataset_path, parts[0].split("-")[1]), #test_set path
             'samples': int(parts[5]),
@@ -102,7 +98,7 @@ def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base
         device = None  # Use CPU
     torch.cuda.set_device(device)
     weights = get_weights(weights_path, project)
-    summary = get_runs_summary(weights_path, project, wandb_project_name)
+    summary = get_runs_summary(weights_path, wandb_project_name)
     runs = []
     for weight in weights:
         info = build_run_info(weight, dataset_path, project, summary)
@@ -119,7 +115,7 @@ def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base
                             'source_dataset', 'source_domain','source_period',
                             'target_domain', #@FIXME Should include target_dataset and target_period
                             'student', 'teacher', 
-                            'epochs', 'best/epoch', 'epochs_asked',
+                            'epochs',
                             'strategy',
                             'setting', 
                             'samples', 
@@ -144,8 +140,8 @@ def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base
                 build_yaml_file(base_data_yaml, target_domain_path)
                 model = YOLO(run['model'])
                 results = model.val(data=TMP_DATA_YAML, task=task, device=device)
-                
-                if len(results) == len(METRICS):
+                results_dict= results.results_dict
+                if len(results_dict) == len(METRICS):
                     with open(csv_path, 'a+') as f:
                         writer = csv.writer(f)
                         writer.writerow([run['id'], 
@@ -153,12 +149,10 @@ def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base
                                             target_domain, 
                                             run['student'],run['teacher'], 
                                             run['epochs'],
-                                            run['best/epoch'],
-                                            run['epochs_asked'],
                                             run['strategy'],
                                             run['setting'], 
                                             run['samples'], 
-                                            *list(results.values())])
+                                            *list(results_dict.values())])
                 else:
                     print('TESTING ERROR. NOT SAVING !')
 
