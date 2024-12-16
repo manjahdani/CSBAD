@@ -1,5 +1,4 @@
 import os
-import sys
 import yaml
 import hydra
 import wandb
@@ -10,7 +9,7 @@ import numpy as np
 
 from subsampling.dataset_builder import build_val_folder, build_train_folder
 
-sys.path.append(os.path.join(sys.path[0], "yolov8", "ultralytics"))
+#sys.path.append(os.path.join(sys.path[0], "yolov8", "ultralytics"))
 from ultralytics import YOLO
 
 
@@ -49,16 +48,20 @@ def train(config):
     # update data files
     update_config_file(config)
 
-
+    print(config.model)
     # init model
-    model = YOLO(config.model.weights, cmd_args=config.model)
+    model = YOLO(config.model.weights)
 
    # train model
     model.train(
         data="data.yaml",
         epochs=config.model.epochs,
+        project=config.model.project,
+        name=config.model.name,
         batch=config.model.batch,
         device=device,
+        single_cls=True,
+        pretrained=True,
     )
 
     # finish the run and remove tmp folders
