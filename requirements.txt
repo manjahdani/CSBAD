@@ -3,4 +3,5 @@ wandb
 hydra-core
 torch
 tqdm
-
+tabulate
+torch
