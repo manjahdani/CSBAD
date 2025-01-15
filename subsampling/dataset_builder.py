@@ -51,9 +51,6 @@ def build_val_folder(cam_week_pairs, base_folder, labels_folder, val_set_size=30
 
 def build_train_folder(config):
     assert len(config.cam_week_pairs) > 0, "At least one camera-week pair should be specified"
-
-    train_samples_per_cam = config.strategy.n // len(config.cam_week_pairs)
-    config.strategy.n=train_samples_per_cam 
     
     files = glob.glob("train/*/*")
     if len(files) > 0:
@@ -71,8 +68,10 @@ def build_train_folder(config):
         config.strategy.image_labels_path=os.path.join(bank_folder,f"labels_{config.student}_w_conf")
         extension=find_file_extension(image_folder)
         config.strategy.imgExtension=extension
-        subsample_names = call(config.strategy)
-        
+        subsample_names, flag = call(config.strategy)
+        if flag==-1:
+            config.strategy.name =  'AlphaAdjusted-' +config.strategy.name 
+
         parallel_copy(
             subsample_names,
             bank_folder,
