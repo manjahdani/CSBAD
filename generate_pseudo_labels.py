@@ -5,8 +5,10 @@ from tqdm import tqdm
 import torch
 from ultralytics import YOLO
 
-YOLO_MODELS=['yolov8n','yolov8x6','yolov8s','yolov8l','yolov8m',
-             'yolo11n','yolo11x','yolo11s','yolo11l','yolo11m']
+YOLO_MODELS = ['yolov8n', 'yolov8x6', 'yolov8s', 'yolov8l', 'yolov8m',
+               'yolo11n', 'yolo11x', 'yolo11s', 'yolo11l', 'yolo11m']
+
+
 def handle_args():
     parser = argparse.ArgumentParser()
     parser.add_argument(
@@ -60,8 +62,8 @@ def generate_pseudo_labels():
     imgs = sorted(glob.glob(os.path.join(img_dir, f"*.{args.extension}")))
 
     # labels
-    labels_dir = f"{args.folder}/labels_{args.model_name}"
-    os.makedirs(labels_dir, exist_ok=True)
+    #labels_dir = f"{args.folder}/labels_{args.model_name}"
+    #os.makedirs(labels_dir, exist_ok=True)
 
     if not args.output_conf:
         labels_dir = f"{args.folder}/labels_{args.model_name}"
@@ -79,26 +81,30 @@ def generate_pseudo_labels():
 
     for i in tqdm(range(len(imgs))):
         img_name = os.path.basename(imgs[i]).split(f".{args.extension}")[0]
-        results = model.predict(source=imgs[i], verbose=False, device=device)
-        boxes = results[0].boxes.xywhn
-        classes = results[0].boxes.cls
-        confs = results[0].boxes.conf
-        str = ""
-        for cls, box, conf in zip(classes, boxes, confs):
-            if(args.model_name in YOLO_MODELS):
-                if cls in vehicules:
-                    if not args.output_conf:
-                        str += f"0 {box[0]} {box[1]} {box[2]} {box[3]}\n"
-                    else:
-                        str += f"0 {box[0]} {box[1]} {box[2]} {box[3]} {conf}\n"
-            else:
-                if not args.output_conf:
-                    str += f"0 {box[0]} {box[1]} {box[2]} {box[3]}\n"
+        try:
+            results = model.predict(source=imgs[i], verbose=False, device=device)
+            boxes = results[0].boxes.xywhn
+            classes = results[0].boxes.cls
+            confs = results[0].boxes.conf
+            str_data = ""
+            for cls, box, conf in zip(classes, boxes, confs):
+                if args.model_name in YOLO_MODELS:
+                    if cls in vehicules:
+                        if not args.output_conf:
+                            str_data += f"0 {box[0]} {box[1]} {box[2]} {box[3]}\n"
+                        else:
+                            str_data += f"0 {box[0]} {box[1]} {box[2]} {box[3]} {conf}\n"
                 else:
-                    str += f"0 {box[0]} {box[1]} {box[2]} {box[3]} {conf}\n"
+                    if not args.output_conf:
+                        str_data += f"0 {box[0]} {box[1]} {box[2]} {box[3]}\n"
+                    else:
+                        str_data += f"0 {box[0]} {box[1]} {box[2]} {box[3]} {conf}\n"
 
-        with open(os.path.join(labels_dir, f"{img_name}.txt"), mode="w") as f:
-            f.write(str)
+            with open(os.path.join(labels_dir, f"{img_name}.txt"), mode="w") as f:
+                f.write(str_data)
+        except Exception as e:
+            # Log error and image name
+            print(f"Error processing image {img_name}: {e}")
 
 
 if __name__ == "__main__":
