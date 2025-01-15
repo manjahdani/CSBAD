@@ -11,7 +11,8 @@ from subsampling.dataset_builder import build_val_folder, build_train_folder
 
 #sys.path.append(os.path.join(sys.path[0], "yolov8", "ultralytics"))
 from ultralytics import YOLO
-
+from ultralytics import settings
+settings.update({"wandb": True})
 
 @hydra.main(version_base=None, config_path="experiments", config_name="experiment")
 def train(config):
