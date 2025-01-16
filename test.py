@@ -1,7 +1,6 @@
 import os
 import argparse
-import torch
-from testing import download, inference, inference_coco,plot
+from testing import download, inference, inference_coco, plot
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_PROJECT_DIR = os.path.join(BASE_PATH, "testdir")
