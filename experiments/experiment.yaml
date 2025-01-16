@@ -9,10 +9,15 @@ defaults:
   - model: yolov8       # no changes here
 
 
+
 # For WALT dataset
 data_root_folder: "/home/dani/data/WALT-challenge" # your path root folder
 
+# WANDB
+entity: "trail22kd" #TO CHANGE for your WANDB entity
+project: "SBAD"     #TO CHANGE for your WANDB project
 
+#Distillation Scheme
 teacher: 'yolov8x6'
 student: 'yolo8n'
 
