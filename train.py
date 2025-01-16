@@ -49,7 +49,6 @@ def train(config):
     # update data files
     update_config_file(config)
 
-    print(config.model)
     # init model
     model = YOLO(config.model.weights)
 
@@ -57,9 +56,9 @@ def train(config):
     model.train(
         data="data.yaml",
         epochs=config.model.epochs,
-        project=config.model.project,
         name=config.model.name,
         batch=config.model.batch,
+        project=config.project,
         device=device,
         single_cls=True,
         pretrained=True,
