@@ -90,7 +90,7 @@ def build_run_info(weight, dataset_path, project, summary):
             'samples': int(parts[5]),
         }
 
-def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base_data_yaml, task, target_domains):
+def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base_data_yaml, task, target_domains, self_only=False):
     #Check if GPU is available
     if torch.cuda.is_available():
         device = "cuda:0"  # Use GPU
@@ -129,6 +129,9 @@ def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base
         try:
             print(f'[{i+1}/{len(runs)}] Testing... : {run["id"]}')
             
+            if self_only:
+                print(f'Only testing on camera', run['source_domain'])
+                target_domains=[run['source_domain']]
             for target_domain in target_domains:
                 if run['id'] in df['run_id'].values:
                     filtered_df = df[df['run_id'] == run['id']]
@@ -199,12 +202,14 @@ if __name__ == "__main__":
                     help='Set the folder to be used for testing: val or test')
     ap.add_argument('-td', '--target_domains', type=str, required=True,
                     help='Set the target_domains to be used for testing')
+    ap.add_argument('-td', '--self_only', type=bool, required=False, default=False,
+                    help='Set to test only')
     args = ap.parse_args()
 
     if not args.wandb_project:
         args.wandb_project = args.project
 
     
-    main(args.weight_path, args.dataset_path, args.project, args.wandb_project, args.data_template, args.folder, args.target_domains.split(','))
+    main(args.weight_path, args.dataset_path, args.project, args.wandb_project, args.data_template, args.folder, args.target_domains.split(','),args.self_only)
 
 

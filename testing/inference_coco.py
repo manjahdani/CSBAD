@@ -1,7 +1,6 @@
 import sys
 import os
 import csv
-import cv2
 import argparse
 from tabulate import tabulate
 import time
@@ -23,7 +22,7 @@ BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 TMP_DATA_YAML = os.path.join(BASE_PATH, 'data.yaml')
 
 METRICS = ['precision', 'recall', 'mAP50', 'mAP50-95', 'fitness']
-MODELS = ['yolov8n', 'yolov8s', 'yolov8m', 'yolov8l', 'yolov8x6']
+MODELS = ['yolov8s', 'yolov8m', 'yolov8l', 'yolov8x6','yolo11n', 'yolo11x']
 
 def main(run_prefix, csv_path, datasets, base_data_yaml, task):
         # Check if GPU is available
@@ -46,7 +45,7 @@ def main(run_prefix, csv_path, datasets, base_data_yaml, task):
                             'source_dataset', 'source_domain','source_period',
                             'target_domain', #@FIXME Should include target_dataset and target_period
                             'student', 'teacher', 
-                            'epochs', 'best/epoch','epochs_asked',
+                            'epochs',
                             'strategy',
                             'setting', 
                             'samples', 
@@ -84,18 +83,27 @@ def main(run_prefix, csv_path, datasets, base_data_yaml, task):
             
             model = YOLO(run['model'] + '.pt')
 
-            results = model.val(data=TMP_DATA_YAML, task=task, imgsz=640, conf=0.4, iou=0.7, batch=1, single_cls=True,device=device) # [2, 3, 7]
+            results = model.val(data=TMP_DATA_YAML, 
+                                task=task, 
+                                device=device, 
+                                imgsz=640, 
+                                conf=0.4, 
+                                iou=0.7, 
+                                batch=1, 
+                                single_cls=True)
             
-            if len(results) == len(METRICS):
+            results_dict= results.results_dict
+            if len(results_dict) == len(METRICS):
                 with open(csv_path, 'a+') as f:
                     writer = csv.writer(f)
                     writer.writerow(['cocoyolo', 
                                      run_prefix, run['data-name'], "undefined",
                                      run['data-name'],
-                                     "null","null","null",
-                                     0, 
-                                     0, 
-                                     run['model'], "null", 0, *list(results.values())])
+                                     run['model'], 
+                                     "null", 
+                                     0,
+                                     "none","none",0, 
+                                     *list(results_dict.values())])
             else:
                 print('TESTING ERROR. NOT SAVING !')
 

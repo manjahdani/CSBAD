@@ -6,7 +6,7 @@ defaults:
   - strategy: uniform-random    
   - val: val            # no changes here
   - train: train        # no changes here
-  - model: yolov8       # no changes here
+  - model: yolo       # no changes here
 
 
 

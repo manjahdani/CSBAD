@@ -16,7 +16,8 @@ if __name__ == "__main__":
     ap.add_argument("-d", "--dataset_path", type=str, required=True)
     ap.add_argument("-w", "--wandb-download", type=bool, required=False, default=True)
     ap.add_argument("-q", "--query_filter", type=str, required=False, default=None)
-    ap.add_argument('-td',"--target_domains", type=str, required=True,help='Set the target_domains to be used for testing')
+    ap.add_argument('-td',"--target_domains", type=str, required=True,help='Set the target_domains to be used for testing'),
+    ap.add_argument("--self_only", action="store_true", default=False,help="Test Models Only On Their Domain"),
     ap.add_argument("--test_yolo", action="store_true", default=False,help="Test YOLO models. Default is False",)
     # not important. added to avoid errors in other used scripts
     ap.add_argument("-r", "--runs", nargs="+", required=False)
@@ -30,7 +31,6 @@ if __name__ == "__main__":
         args.list_all = False
         args.list_finished = True
         args.download = True
-
         download.main(args)  # <- download script
     else:
         print("1. Skipping download script")
@@ -44,7 +44,7 @@ if __name__ == "__main__":
         DEFAULT_PROJECT_DIR, args.project, "inference_results.csv"
     )
 
-    # Update the following line to call your modified `inference_multistream.main` function
+    #Update the following line to call your modified `inference_multistream.main` function
     runs = inference.main(
         args.weight_path,
         args.csv_path,
@@ -53,7 +53,8 @@ if __name__ == "__main__":
         args.project,
         args.template,
         args.folder,
-        args.target_domains.split(',')
+        args.target_domains.split(','),
+        args.self_only
     )
     data_names = []
     for run in runs:
