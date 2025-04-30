@@ -9,7 +9,7 @@ defaults:
   - model: yolo       # no changes here
 
 
-
+val_set_size: 300
 # For WALT dataset
 data_root_folder: "/home/dani/data/WALT-challenge" # your path root folder
 
