@@ -10,19 +10,14 @@ import logging
 import gc
 import torch
 
-if __name__ == '__main__':
-    sys.path.append(os.path.join(sys.path[0], '..', "yolov8", "ultralytics"))
-    from ultralytics import YOLO
-elif __name__ == 'testing.inference_coco':
-    sys.path.append(os.path.join(sys.path[0], "yolov8", "ultralytics"))
-    from ultralytics import YOLO
+from ultralytics import RTDETR
 
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 TMP_DATA_YAML = os.path.join(BASE_PATH, 'data.yaml')
 
 METRICS = ['precision', 'recall', 'mAP50', 'mAP50-95', 'fitness']
-MODELS = ['yolov8s', 'yolov8m', 'yolov8l', 'yolov8x6','yolo11n', 'yolo11x']
+MODELS = ['rtdetr-l', 'rtdetr-x']
 
 def main(run_prefix, csv_path, datasets, base_data_yaml, task):
         # Check if GPU is available
@@ -81,7 +76,7 @@ def main(run_prefix, csv_path, datasets, base_data_yaml, task):
             print(f'[{i+1}/{len(runs)}] Testing... : {run["model"]} {run["data-name"]}')
             build_yaml_file(base_data_yaml, run['data'])
             
-            model = YOLO(run['model'] + '.pt')
+            model = RTDETR(model=run['model'] + '.pt')
 
             results = model.val(data=TMP_DATA_YAML, 
                                 task=task, 
@@ -96,7 +91,7 @@ def main(run_prefix, csv_path, datasets, base_data_yaml, task):
             if len(results_dict) == len(METRICS):
                 with open(csv_path, 'a+') as f:
                     writer = csv.writer(f)
-                    writer.writerow(['cocoyolo', 
+                    writer.writerow(['cocoDETR', 
                                      run_prefix, run['data-name'], "undefined",
                                      run['data-name'],
                                      run['model'], 
@@ -134,7 +129,7 @@ def build_yaml_file(base_file, dataset):
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
 
-    ap.add_argument('-m', '--model', type=str, required=True, default='yolov8n', 
+    ap.add_argument('-m', '--model', type=str, required=True, default='rtdetr-l', 
                     choices = MODELS,
                     help='which pretrained model to use')
     ap.add_argument('-c', '--csv_path', type=str, required=False,

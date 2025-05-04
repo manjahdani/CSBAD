@@ -10,7 +10,7 @@ import numpy as np
 from subsampling.dataset_builder import build_val_folder, build_train_folder
 
 #sys.path.append(os.path.join(sys.path[0], "yolov8", "ultralytics"))
-from ultralytics import YOLO
+from ultralytics import RTDETR
 from ultralytics import settings
 settings.update({"wandb": True})
 
@@ -50,7 +50,7 @@ def train(config):
     update_config_file(config)
 
     # init model
-    model = YOLO(config.model.weights)
+    model = RTDETR(config.model.weights)
 
    # train model
     model.train(

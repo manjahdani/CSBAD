@@ -3,10 +3,10 @@ import glob
 import argparse
 from tqdm import tqdm
 import torch
-from ultralytics import YOLO
+from ultralytics import RTDETR
 
-YOLO_MODELS = ['yolov8n', 'yolov8x6', 'yolov8s', 'yolov8l', 'yolov8m',
-               'yolo11n', 'yolo11x', 'yolo11s', 'yolo11l', 'yolo11m']
+
+YOLO_MODELS = ['rtdetr-l', 'rtdetr-x']
 
 
 def handle_args():
@@ -23,8 +23,8 @@ def handle_args():
     parser.add_argument(
         "--model-name",
         type=str,
-        default="yolov8x6",
-        help="Model used to generate the pseudo labels. Default is 'yolov8x6'",
+        default="rtdetr-x",
+        help="Model used to generate the pseudo labels. Default is 'rtdetr-x'",
     )
     parser.add_argument(
         "--output-conf",
@@ -51,7 +51,7 @@ def generate_pseudo_labels():
     vehicules = [2, 5, 7]
 
     # model
-    model = YOLO(f"./models/{args.model_name}.pt")
+    model = RTDETR(f"{args.model_name}.pt")
 
     if args.model_name not in YOLO_MODELS:
         print("NOT YOLO MODEL, double check the output")
@@ -94,11 +94,6 @@ def generate_pseudo_labels():
                             str_data += f"0 {box[0]} {box[1]} {box[2]} {box[3]}\n"
                         else:
                             str_data += f"0 {box[0]} {box[1]} {box[2]} {box[3]} {conf}\n"
-                else:
-                    if not args.output_conf:
-                        str_data += f"0 {box[0]} {box[1]} {box[2]} {box[3]}\n"
-                    else:
-                        str_data += f"0 {box[0]} {box[1]} {box[2]} {box[3]} {conf}\n"
 
             with open(os.path.join(labels_dir, f"{img_name}.txt"), mode="w") as f:
                 f.write(str_data)

@@ -9,12 +9,7 @@ import sys
 import time
 import torch
 import re
-if __name__ == '__main__':
-    sys.path.append(os.path.join(sys.path[0], '..', "yolov8", "ultralytics"))
-    from ultralytics import YOLO
-elif __name__ == 'testing.inference':
-    sys.path.append(os.path.join(sys.path[0], "yolov8", "ultralytics"))
-    from ultralytics import YOLO
+
 
 # NAMING CONVENTION:
 # {Source_domain}_{Target_domain}_{Student}_{Teacher}_{Strategy}_{Active-Learning-Setting}_{Total_Samples} # to add _{Iteration_Level}_{Epochs}_{Validation_Set}
@@ -26,8 +21,9 @@ elif __name__ == 'testing.inference':
 # In the case of multi-run, we assume a balanced class therefore there is only need to have the name of the domain and their respective period as
 # domain = domain{1,2,3,n}; E.g., if we trained on cam 1,11,120 and used the 1st week for cam 1, the second and fourth week for cam 11 and 120 then it should be "cam1,11,120", "week1,2,4".
 #
-# run = 2kq3iot2.WALT-cam3,4-week5,6_yolov8n_yolov8x6_least-confidence-max_stream-based_16
-# run_name = WALT-cam3,4-week5,6_yolov8n_yolov8x6_least-confidence-max_stream-based_16
+
+
+from ultralytics import RTDETR
 
 BASE_PATH = os.path.dirname(os.path.abspath(__file__))
 TMP_DATA_YAML = os.path.join(BASE_PATH, 'data.yaml')
@@ -141,7 +137,7 @@ def main(weights_path, csv_path, dataset_path, project, wandb_project_name, base
                     
                 target_domain_path = os.path.join(dataset_path,target_domain)
                 build_yaml_file(base_data_yaml, target_domain_path)
-                model = YOLO(run['model'])
+                model = RTDETR(run['model'])
                 results = model.val(data=TMP_DATA_YAML, task=task, device=device)
                 results_dict= results.results_dict
                 if len(results_dict) == len(METRICS):
