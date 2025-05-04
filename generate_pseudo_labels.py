@@ -3,11 +3,14 @@ import glob
 import argparse
 from tqdm import tqdm
 import torch
-from ultralytics import YOLO
+from PIL import Image
+from transformers import RTDetrV2ForObjectDetection, RTDetrImageProcessor
 
-YOLO_MODELS = ['yolov8n', 'yolov8x6', 'yolov8s', 'yolov8l', 'yolov8m',
-               'yolo11n', 'yolo11x', 'yolo11s', 'yolo11l', 'yolo11m']
 
+
+TRANSFORMERS_MODELS = ['rtdetr_v2_r18vd', 'rtdetr_v2_r101vd']
+
+vehicules = [2, 5, 7]
 
 def handle_args():
     parser = argparse.ArgumentParser()
@@ -23,8 +26,8 @@ def handle_args():
     parser.add_argument(
         "--model-name",
         type=str,
-        default="yolov8x6",
-        help="Model used to generate the pseudo labels. Default is 'yolov8x6'",
+        default="rtdetr_v2_r101vd",
+        help="Model used to generate the pseudo labels. Default is 'rtdetr_v2_r101vd",
     )
     parser.add_argument(
         "--output-conf",
@@ -48,13 +51,10 @@ def generate_pseudo_labels():
     7: truck
     8: boat
     """
-    vehicules = [2, 5, 7]
+    
 
-    # model
-    model = YOLO(f"./models/{args.model_name}.pt")
-
-    if args.model_name not in YOLO_MODELS:
-        print("NOT YOLO MODEL, double check the output")
+    if args.model_name not in TRANSFORMERS_MODELS:
+        print("NOT RT MODEL, double check the output")
     else:
         print("USING COCO CLASES")
     # images
@@ -79,27 +79,43 @@ def generate_pseudo_labels():
     else:
         device = None  # Use CPU
 
+    torch.cuda.set_device(device)
+
+    image_processor = RTDetrImageProcessor.from_pretrained(f"PekingU/{args.model_name}",
+                                                           use_fast = True)
+    model = RTDetrV2ForObjectDetection.from_pretrained(f"PekingU/{args.model_name}").to(device)
+
+    
     for i in tqdm(range(len(imgs))):
         img_name = os.path.basename(imgs[i]).split(f".{args.extension}")[0]
         try:
-            results = model.predict(source=imgs[i], verbose=False, device=device)
-            boxes = results[0].boxes.xywhn
-            classes = results[0].boxes.cls
-            confs = results[0].boxes.conf
+            image = Image.open(imgs[i])
+            inputs = image_processor(images=image, return_tensors="pt").to(device)
+            with torch.no_grad():
+                outputs = model(**inputs)
+            W  = image.width
+            H  = image.height
+            results = image_processor.post_process_object_detection(outputs, 
+                                                                    target_sizes=torch.tensor([(H, W)]), 
+                                                                    threshold=0.5) # return boxes as (top_left_x, top_left_y, bottom_right_x, bottom_right_y)
+            
             str_data = ""
-            for cls, box, conf in zip(classes, boxes, confs):
-                if args.model_name in YOLO_MODELS:
+            for result in results:
+                for cls, box, conf in zip(result["labels"], result["boxes"], result["scores"]):       
+                    x1, y1, x2, y2 = box
+                    xc = ((x1 + x2) / 2) / W
+                    yc = ((y1 + y2) / 2) / H
+                    w  = (x2 - x1) / W
+                    h  = (y2 - y1) / H 
+                    box = list((xc, yc, w, h))
+                    conf, cls = conf.item(), cls.item() 
+                    #box = [round(i, 2) for i in box.tolist()]
                     if cls in vehicules:
                         if not args.output_conf:
                             str_data += f"0 {box[0]} {box[1]} {box[2]} {box[3]}\n"
                         else:
                             str_data += f"0 {box[0]} {box[1]} {box[2]} {box[3]} {conf}\n"
-                else:
-                    if not args.output_conf:
-                        str_data += f"0 {box[0]} {box[1]} {box[2]} {box[3]}\n"
-                    else:
-                        str_data += f"0 {box[0]} {box[1]} {box[2]} {box[3]} {conf}\n"
-
+            
             with open(os.path.join(labels_dir, f"{img_name}.txt"), mode="w") as f:
                 f.write(str_data)
         except Exception as e:
