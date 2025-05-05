@@ -10,12 +10,13 @@ from collections.abc import Mapping
 from typing import Any, Optional, Union
 from PIL import Image
 from transformers.image_processing_utils import BatchFeature
-from datasets import DatasetDict
+
 from hydra.utils import to_absolute_path
 import uuid
 from transformers.utils import check_min_version
 from transformers.utils.versions import require_version
 
+from evalMAP import MAPEvaluator
 from transformers import RTDetrV2ForObjectDetection, TrainingArguments, Trainer
 from transformers import AutoImageProcessor as RTDetrV2ImageProcessor
 from build_dataset import convert_dataset
@@ -61,9 +62,7 @@ def train(config):
                                                              do_pad=DO_PAD,
                                                              pad_size={"height":IMAGE_SQUARE_SIZE,"width":IMAGE_SQUARE_SIZE},
                                                              do_normalize=True,
-                                                             do_rescale=True
-                                                             #use_fast=USE_FAST
-                                                             )
+                                                             do_rescale=True)
 
     def collate_fn(batch: list[BatchFeature]) -> Mapping[str, Union[torch.Tensor, list[Any]]]:
         pixel_values = torch.stack([x["pixel_values"] for x in batch])
@@ -98,7 +97,10 @@ def train(config):
     dataset["train"] = dataset["train"].with_transform(preprocess_batch)
     dataset["validation"] = dataset["validation"].with_transform(preprocess_batch)
 
+    id2label={0: "vehicle"}
 
+    label2id={"vehicle": 0}
+    
     model = RTDetrV2ForObjectDetection.from_pretrained(
         checkpoint,
         num_labels=1,
@@ -118,6 +120,7 @@ def train(config):
         max_grad_norm=0.1,
         warmup_steps=300,
         lr_scheduler_type="cosine",
+        metric_for_best_model="eval_map_50_95",
         remove_unused_columns=False,
         warmup_ratio=0.1,
         greater_is_better=True,
@@ -134,13 +137,16 @@ def train(config):
         eval_do_concat_batches=False,
         report_to="wandb")
 
+    eval_compute_metrics_fn = MAPEvaluator(image_processor=image_processor, threshold=0.01, id2label=id2label)
+
     trainer = Trainer(
         model=model,
         args=train_args,
         train_dataset=dataset["train"],
         data_collator=collate_fn,
         eval_dataset=dataset["validation"],
-        processing_class=image_processor)
+        processing_class=image_processor,
+        compute_metrics=eval_compute_metrics_fn)
 
     trainer.train()
     wandb.finish()
