@@ -167,6 +167,8 @@ multirun/
 outputs/
 testdir/
 wandb/
+models/
+simulations_scripts/
 
 #weights
 *.pt 

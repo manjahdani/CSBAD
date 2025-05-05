@@ -13,12 +13,19 @@ from transformers.image_processing_utils import BatchFeature
 from datasets import DatasetDict
 from hydra.utils import to_absolute_path
 import uuid
+from transformers.utils import check_min_version
+from transformers.utils.versions import require_version
 
 from transformers import RTDetrV2ForObjectDetection, TrainingArguments, Trainer
 from transformers import AutoImageProcessor as RTDetrV2ImageProcessor
-from convert2Json import yolo_to_coco_oneclass, build_hf_dataset_from_coco
+from build_dataset import convert_dataset
 from subsampling.dataset_builder import build_val_folder, build_train_folder
 from typing import Any
+
+# Will error if the minimal version of Transformers is not installed. Remove at your own risks.
+check_min_version("4.52.0.dev0")
+
+require_version("datasets>=2.0.0", "To fix: pip install -r examples/pytorch/object-detection/requirements.txt")
 
 #ARGUMENTS FOR PRE PROCESSOR
 IMAGE_SQUARE_SIZE = 640
@@ -45,18 +52,7 @@ def train(config):
     train_folder = build_train_folder(config.train)
     path_run = update_config_file(config)
 
-    train_path_json_labels, train_json = yolo_to_coco_oneclass(
-        os.path.join(path_run, train_folder, "labels"),
-        os.path.join(path_run, train_folder, "images")
-    )
-    val_path_json_labels, val_json = yolo_to_coco_oneclass(
-        os.path.join(path_run, val_folder, "labels"),
-        os.path.join(path_run, val_folder, "images")
-    )
-
-    train_ds = build_hf_dataset_from_coco(train_path_json_labels, os.path.join(path_run, train_folder, "images"))
-    val_ds = build_hf_dataset_from_coco(val_path_json_labels, os.path.join(path_run, val_folder, "images"))
-    dataset = DatasetDict({"train": train_ds, "validation": val_ds})
+    dataset = convert_dataset(path_run)
 
     checkpoint = f"PekingU/{config.student}"
     image_processor = RTDetrV2ImageProcessor.from_pretrained(checkpoint,
@@ -135,6 +131,7 @@ def train(config):
         eval_on_start=True,
         eval_strategy="epoch",
         save_strategy="epoch",
+        eval_do_concat_batches=False,
         report_to="wandb")
 
     trainer = Trainer(
