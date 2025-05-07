@@ -169,6 +169,7 @@ testdir/
 wandb/
 models/
 simulations_scripts/
+predictionsForEval/
 
 #weights
 *.pt 
