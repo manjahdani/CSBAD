@@ -170,6 +170,6 @@ wandb/
 models/
 simulations_scripts/
 predictionsForEval/
-
+visualizations_eval/
 #weights
 *.pt 
