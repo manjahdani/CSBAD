@@ -1,4 +1,5 @@
 import os
+import sys
 import yaml
 import hydra
 import wandb
@@ -6,150 +7,104 @@ import torch
 import shutil
 import random
 import numpy as np
-from collections.abc import Mapping
-from typing import Any, Optional, Union
-from PIL import Image
-from transformers.image_processing_utils import BatchFeature
-
+import subprocess
+from subsampling.dataset_builder import build_val_folder, build_train_folder
+from build_dataset import yolo_to_coco_oneclass
 from hydra.utils import to_absolute_path
 import uuid
-from transformers.utils import check_min_version
-from transformers.utils.versions import require_version
-
-from evalMAP import MAPEvaluator
-from transformers import RTDetrV2ForObjectDetection, TrainingArguments, Trainer
-from transformers import AutoImageProcessor as RTDetrV2ImageProcessor
-from build_dataset import convert_dataset
-from subsampling.dataset_builder import build_val_folder, build_train_folder
-from typing import Any
-
-# Will error if the minimal version of Transformers is not installed. Remove at your own risks.
-check_min_version("4.52.0.dev0")
-
-require_version("datasets>=2.0.0", "To fix: pip install -r examples/pytorch/object-detection/requirements.txt")
-
-#ARGUMENTS FOR PRE PROCESSOR
-IMAGE_SQUARE_SIZE = 640
-DO_RESIZE=True
-DO_PAD = True
-USE_FAST = True
+from pprint import pprint
 
 
 @hydra.main(version_base=None, config_path="experiments", config_name="experiment")
 def train(config):
-    device = "cuda:0" if torch.cuda.is_available() else "cpu"
+    # Check if GPU is available
+    if torch.cuda.is_available():
+        device = "cuda:0"  # Use GPU
+    else:
+        device = None  # Use CPU
+
     config.cam_week_pairs, n_cameras = generate_cameras_pairs(config.dataset.name)
 
-    if config.training_mode == "cst_maturity":
-        if config.N_streams != "null":
-            config.model.epochs = int(config.model.epochs * config.N_streams / n_cameras)
-            config.epochs = config.model.epochs
+    if(config.training_mode=="cst_maturity"):
+        if (config.N_streams != "null"):
+            print(f"Mode: const maturity, base_epoch: {config.model.epochs}, streams: {config.N_streams}, new epoch: {int(config.model.epochs * config.N_streams / n_cameras)}")
+            config.model.epochs = int(config.model.epochs*config.N_streams/n_cameras)
+            config.epochs=config.model.epochs
         else:
-            raise ValueError("For constant maturity study, 'N_streams' is required.")
+            raise ValueError("For constant maturity study, 'N_streams' (total streams) is required.")
 
+
+        
+
+    # Set the default device for tensors
     torch.cuda.set_device(device)
+    # fix the seed
     set_random(config.seed)
+
+    # generate validation folder
     val_folder = build_val_folder(**config.val)
+
+    # generate train folder
     train_folder = build_train_folder(config.train)
+
+    # update data files
     path_run = update_config_file(config)
+    print(path_run)
+    train_path_json_labels,_ = yolo_to_coco_oneclass(
+        os.path.join(path_run, "train", "labels"),
+        os.path.join(path_run, "train", "images")
+    )
+    val_path_json_labels, _ = yolo_to_coco_oneclass(
+        os.path.join(path_run, "val", "labels"),
+        os.path.join(path_run, "val", "images")
+    )
 
-    dataset = convert_dataset(path_run)
-
-    checkpoint = f"PekingU/{config.student}"
-    image_processor = RTDetrV2ImageProcessor.from_pretrained(checkpoint,
-                                                             do_resize=DO_RESIZE,
-                                                             size={"height":IMAGE_SQUARE_SIZE,"width":IMAGE_SQUARE_SIZE},
-                                                             do_pad=DO_PAD,
-                                                             pad_size={"height":IMAGE_SQUARE_SIZE,"width":IMAGE_SQUARE_SIZE},
-                                                             do_normalize=True,
-                                                             do_rescale=True)
-
-    def collate_fn(batch: list[BatchFeature]) -> Mapping[str, Union[torch.Tensor, list[Any]]]:
-        pixel_values = torch.stack([x["pixel_values"] for x in batch])
-        data = {"pixel_values": pixel_values, "labels": [x["labels"] for x in batch]}
-        if "pixel_mask" in batch[0]:
-            data["pixel_mask"] = torch.stack([x["pixel_mask"] for x in batch])
-        return data
+    # Copy and adapt NanoDet config
+    orig_cfg_path = to_absolute_path("/home/dani/CSBAD/nanodet/config/nanodet-plus-m_416.yml")
+    os.makedirs("/home/dani/CSBAD/workspace/", exist_ok=True)
     
-    def preprocess_batch(examples):
-        images = [Image.open(p).convert("RGB") for p in examples["file_path"]]
-        annotations = []
-
-        for i in range(len(images)):
-            objs = examples["objects"][i]
-            anns = []
-            for j in range(len(objs["bbox"])):
-                anns.append({
-                    "category_id": objs["category_id"][j],
-                    "bbox": objs["bbox"][j],
-                    "area": objs["area"][j],
-                    "iscrowd": objs["iscrowd"][j],
-                })
-            annotations.append({
-                "image_id": examples["id"][i],
-                "annotations": anns
-            })
-
-        processed = image_processor(images=images, annotations=annotations, return_tensors="pt")
-        processed["labels"] = processed.pop("labels")  # required by Trainer
-        return processed
-
-    dataset["train"] = dataset["train"].with_transform(preprocess_batch)
-    dataset["validation"] = dataset["validation"].with_transform(preprocess_batch)
-
-    id2label={0: "vehicle"}
-
-    label2id={"vehicle": 0}
+    run_name = f"{str(uuid.uuid4())[:8]}_{config.model.name}_{config.model.epochs}"
+    workspace_dir = os.path.join("/home/dani/CSBAD/workspace/", run_name)
     
-    model = RTDetrV2ForObjectDetection.from_pretrained(
-        checkpoint,
-        num_labels=1,
-        id2label={0: "vehicle"},
-        label2id={"vehicle": 0},
-        ignore_mismatched_sizes=True
-    ).to(device)
+    os.makedirs(workspace_dir, exist_ok=True)
+    custom_cfg_path = os.path.join(workspace_dir, "config.yml")
+    shutil.copy(orig_cfg_path, custom_cfg_path)
 
+    with open(custom_cfg_path, 'r') as f:
+        nanodet_cfg = yaml.safe_load(f)
+    
+    pprint(nanodet_cfg['model'])
+    
+    # Modify the necessary fields
+    nanodet_cfg ['model']['arch']['head']['num_classes'] = 1
+    nanodet_cfg ['model']['arch']['aux_head']['num_classes'] = 1
+    nanodet_cfg ['class_names'] = ['vehicle']
 
-    config.model.name = f"{str(uuid.uuid4())[:8]}_{config.model.name}_{config.model.epochs}"
-    train_args = TrainingArguments(
-        run_name=config.model.name,
-        output_dir= to_absolute_path(os.path.join("models", config.model.name)), #f"./models/{config.model.name}",
-        per_device_train_batch_size=16,
-        per_device_eval_batch_size=8,
-        num_train_epochs=config.model.epochs,
-        max_grad_norm=0.1,
-        warmup_steps=300,
-        lr_scheduler_type="cosine",
-        metric_for_best_model="eval_map_50_95",
-        remove_unused_columns=False,
-        warmup_ratio=0.1,
-        greater_is_better=True,
-        learning_rate=5e-5,
-        weight_decay=1e-4,
-        dataloader_num_workers=2,
-        fp16=True,
-        logging_steps=16,
-        load_best_model_at_end=True,
-        save_total_limit=1,
-        eval_on_start=True,
-        eval_strategy="epoch",
-        save_strategy="epoch",
-        eval_do_concat_batches=False,
-        report_to="wandb")
+    nanodet_cfg['data']['train']['img_path'] = os.path.join(path_run, "train", "images")
+    nanodet_cfg['data']['train']['ann_path'] = train_path_json_labels
+    nanodet_cfg['data']['val']['img_path'] = os.path.join(path_run, "val", "images")
+    nanodet_cfg['data']['val']['ann_path'] = val_path_json_labels
+    
+    nanodet_cfg['save_dir'] = f"{workspace_dir}"
+    nanodet_cfg['schedule']['total_epochs'] = str(config.model.epochs)
+    nanodet_cfg['device']['precision'] = 16  # or 32
 
-    eval_compute_metrics_fn = MAPEvaluator(image_processor=image_processor, threshold=0.01, id2label=id2label)
+    #nanodet_cfg['schedule']['load_model'] = "/home/dani/CSBAD/checkpoints/nanodet-plus-m_416_checkpoint.ckpt"
+    # init model
+    with open(custom_cfg_path, 'w') as f:
+        yaml.dump(nanodet_cfg, f)
 
-    trainer = Trainer(
-        model=model,
-        args=train_args,
-        train_dataset=dataset["train"],
-        data_collator=collate_fn,
-        eval_dataset=dataset["validation"],
-        processing_class=image_processor,
-        compute_metrics=eval_compute_metrics_fn)
+    subprocess.run([
+        "python",
+        "/home/dani/CSBAD/nanodet/tools/train.py",
+        custom_cfg_path
+    ])
 
-    trainer.train()
-    wandb.finish()
+    # finish the run and remove tmp folders
+    #wandb.finish()
+    #shutil.rmtree(val_folder, ignore_errors=True)
+    #shutil.rmtree(train_folder, ignore_errors=True)
+
 
 def set_random(seed):
     random.seed(seed)
@@ -157,6 +112,7 @@ def set_random(seed):
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
+
 
 def update_config_file(config):
     with open(config.model.data, mode="r") as f:
@@ -166,16 +122,27 @@ def update_config_file(config):
         yaml.dump(data, f)
     return data["path"]
 
+
 def generate_cameras_pairs(input_string):
+    # Find the index of the '-'
     dash_index = input_string.index('-')
+
+    # Find the index of the '-week'
     week_index = input_string.index('-week')
+
+    # Get the cameras and weeks as lists of characters
     cameras = input_string[dash_index+4:week_index].split('o')
     weeks = input_string[week_index+5:].split('o')
+
+    # Check that the number of cameras is equal to the number of weeks
     if len(cameras) != len(weeks):
         raise ValueError("The number of cameras must be equal to the number of weeks")
-    return [{'cam': int(cam), 'week': int(week)} for cam, week in zip(cameras, weeks)], len(cameras)
+
+    # Generate the output
+    output = [{'cam': int(cam), 'week': int(week)} for cam, week in zip(cameras, weeks)]
+    
+    return output,len(cameras)
+
 
 if __name__ == "__main__":
     train()
-
-
