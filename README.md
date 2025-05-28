@@ -261,5 +261,21 @@ python testing/plot.py --csv_path ./testdir/WALT/inference_results.csv --save_pa
 
 Use the `--help` flag for more information on the usage of each script.
 
+# Clustering Reproducibility 
+To obtain the clustering, you have to train one model per camera and then cross-evaluate this model on each test sets. Namely: 
+
+python train.py n_samples=256 cam=X week=Y strategy=thresh-top-confidence, where (X,Y) is the following pairs (1,1);(2,1);(3,5,);(4,2);(5,3);(6,4);(7,4);(8,3);(9,1). This will use the default settings as the student=yolov8n, teacher=yolov8x6 and epochs=100. 
+
+You can then use the testing module and rearrange the resulting csv. For convenience, we already provided the ``cross_performance.csv" and you can find out the clusters by running 
+```
+python python cluster_cameras.py
+```
+
+
+
+
+
+
+
 
 
